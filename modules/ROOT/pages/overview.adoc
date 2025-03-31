@@ -33,7 +33,7 @@ The Couchbase EF Core Provider is a work in progress, and does not yet support a
 * Synchronous operations are not supported (https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations[Similar to Cosmos DB EF Core Provider]) and methods will throw exceptions if used.
 * Most all ADO.NET features are only partially supported.
 * Nested documents are stored in seperate collections.
-* https://learn.microsoft.com/en-us/ef/core/modeling/inheritance[Discrimantor] fields must be explicitly added to your entities.
+* https://learn.microsoft.com/en-us/ef/core/modeling/inheritance[Discriminator] fields must be explicitly added to your entities.
 * Explicit or implicit `CROSS JOIN`s.
 * https://jira.issues.couchbase.com/browse/CBEF-50[Bitwise operator] support.
 * The ability to use https://docs.couchbase.com/dotnet-sdk/current/howtos/n1ql-queries-with-sdk.html#query-options[custom options] for KV and Query. The default options are used.
