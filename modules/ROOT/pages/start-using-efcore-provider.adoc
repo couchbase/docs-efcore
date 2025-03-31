@@ -2,38 +2,71 @@
 :page-toclevels: 2
 :description: Get up and running with `Couchbase.EntityFrameworkCore` via a Console application.
 
-== Getting started
-The following are detailed steps for getting up and running with Couchbase.EntityFrameworkCore via a Console application. The Contoso University sample application is also a great way to become familier with the provider.
+
+// Note to editors
+// 
+// This page pulls in content from
+// https://github.com/couchbase/docs-sdk-common/blob/release/7.7/modules/shared/partials/???.adoc
+//
+// and code samples from
+// https://github.com/couchbase/docs-sdk-dotnet/tree/release/3.7/modules/devguide/examples/dotnet
+// 
+// It can be seen built at
+// https://docs.couchbase.com/dotnet-sdk/3.7/hello-world/entity-framework-core-getting-started.html
+
+
+[abstract]
+{description}
+
+
+The Contoso University sample application is also a great way to become familier with the provider.
 
 [NOTE]
 This is a clone of the https://learn.microsoft.com/en-us/ef/core/get-started/overview/first-app[EFGettingStarted] example in the MS Docs.
 
-## Prerequisites
+
+== Prerequisites
+
 * Download and Install https://dotnet.microsoft.com/en-us/download/dotnet/8.0[.NET 8]
 * Create a https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free  tier account.
 
-## Create the Couchbase Capella database
+
+== Create the Couchbase Capella database
 
 [TIP]  
 ====
 Checkout this https://jeffrymorris.net/2024/12/07/getting-started-with-ef-core-couchbase-db-provider/[blog] for details on how to set up the Couchbase Capella database for this example.
 ====
 
-After you have created your https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free tier, you must create a https://docs.couchbase.com/server/current/learn/clusters-and-availability/clusters-and-availability.html#clusters[Couchbase Capella], a https://docs.couchbase.com/server/current/learn/buckets-memory-and-storage/buckets.html[Bucket] name "Content", a https://docs.couchbase.com/server/current/learn/data/scopes-and-collections.html[Scope] named "Blogs" and then https://docs.couchbase.com/server/current/learn/data/scopes-and-collections.html[Collections] called "Blog" and "Post" for storing the documents. Note that names are *case-sensitive*!
+After you have created your https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free tier, 
+you must create a xref:server:learn:clusters-and-availability/clusters-and-availability.adoc#clusters[Cluster], 
+a xref:server:learn:buckets-memory-and-storage/buckets.adoc[Bucket] named "Content", 
+a xref:server:learn:data/scopes-and-collections.adoc[Scope] named "Blogs",
+and then xref:server:learn:data/scopes-and-collections.adoc[Collections] called "Blog" and "Post" for storing the documents.
+Note that names are *case-sensitive*.
 
-## Create a Console application
-* Create the .NET Console Application using https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code?pivots=dotnet-8-0[this tutorial] or https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio?pivots=dotnet-8-0[Visual Studio] or via the https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new[Command Line]
-```
+== Create a Console application
+
+* Create the .NET Console Application using https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code?pivots=dotnet-8-0[this tutorial] 
+or https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio?pivots=dotnet-8-0[Visual Studio] 
+or via the https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new[Command Line]:
++
+----
 mkdir CouchbaseGettingStarted
 cd CouchbaseGettingStarted
 dotnet new console
-```
-* Once you have created the console application add the dependency on Couchbase.EntityFrameworkCore:
-```
+-
+---
+* Once you have created the console application add the dependency on `Couchbase.EntityFrameworkCore`:
++
+----
 dotnet install Couchbase.EntityFrameworkCore --version 1.0.0-dp1
-```
-* In the project directory, create Model.cs with the following code
-```
+----
+
+* In the project directory, create Model.cs with the following code:
++
+[source,csharp]
+----
 using Microsoft.EntityFrameworkCore;
 using Couchbase;
 using Couchbase.EntityFrameworkCore;
@@ -83,11 +116,14 @@ public class Post
     public int BlogId { get; set; }
     public Blog Blog { get; set; }
 }
-```
+----
 
-## Create, read, update & delete
+
+== Create, read, update & delete
+
 * Open _Program.cs_ and replace the contents with the following code
-```
++
+----
 using var db = new BloggingContext();
 
 // Note: This sample requires the Couchbase database to be created before running.
@@ -126,13 +162,16 @@ await db.SaveChangesAsync();
 Console.WriteLine("Delete the blog");
 db.Remove(blog);
 await db.SaveChangesAsync();
-```
+----
 
-## Run the app
+
+== Run the app
+
 * _Run 'CouchbaseGettingStarted'_ in Rider IDE Or,
 * _Debug > Start Without Debugging_ in VS Or,
 * `dotnet run` in .NET CLI
-```
++
+----
 /source/couchbase-dotnet-ef/samples/CouchbaseGettingStarted/bin/Debug/net8.0/CouchbaseGettingStarted
 Inserting a new blog
 Querying for a blog
@@ -140,23 +179,7 @@ Updating the blog and adding a post
 Delete the blog
 
 Process finished with exit code 0.
-
-```
-
+----
 
 
-// Note to editors
-// 
-// This page pulls in content from
-// https://github.com/couchbase/docs-sdk-common/blob/release/7.7/modules/shared/partials/???.adoc
-//
-// and code samples from
-// https://github.com/couchbase/docs-sdk-dotnet/tree/release/3.7/modules/devguide/examples/dotnet
-// 
-// It can be seen built at
-// https://docs.couchbase.com/dotnet-sdk/3.7/hello-world/entity-framework-core-getting-started.html
-
-
-[abstract]
-{description}
 
