@@ -12,9 +12,9 @@
 |===
 | Couchbase EF Core Provider | 1.0.0
 | EF Core | 8.0.0
-| .NET Version | .NET8*
+| .NET Version | .NET 8 ①
 | Couchbase Server | >= 7.6.0
 | Couchbase .NET SDK | >= 6.6.6
 |===
 
-* May work other .NET versions, but not tested.
+① May work with other .NET versions, but not tested.
