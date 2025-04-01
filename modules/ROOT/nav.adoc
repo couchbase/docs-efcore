@@ -8,4 +8,4 @@
 * xref:ROOT:entity-framework-core-release-notes.adoc[Release Notes]
 * xref:ROOT:entity-framework-core-compatibility-guide.adoc[Compatibility Guide]
 * [API Reference]
-* [GitHub Source Code Repo]
+* https://github.com/couchbaselabs/couchbase-efcore-provider[GitHub Source Code Repo]
