@@ -14,7 +14,7 @@
 | EF Core | 8.0.0
 | .NET Version | .NET 8 ^①^
 | Couchbase Server | >= 7.6.0
-| Couchbase .NET SDK | >= 6.6.6
+| Couchbase .NET SDK | >= 3.6.6
 |===
 
 ① May work with other .NET versions, but not tested.

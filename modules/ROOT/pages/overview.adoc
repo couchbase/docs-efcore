@@ -19,8 +19,6 @@ This documentation contains the following pages:
 * [API Reference]
 * https://github.com/couchbaselabs/couchbase-efcore-provider[GitHub Source Code Repo]
 
-
-
 == Limitations
 
 The Couchbase EF Core Provider is a work in progress, and does not yet support all of the features of EF Core or Couchbase.
@@ -30,7 +28,7 @@ The Couchbase EF Core Provider is a work in progress, and does not yet support a
 * Couchbase https://docs.couchbase.com/cloud/n1ql/n1ql-language-reference/metafun.html#meta[META()] function.
 * Couchbase https://docs.couchbase.com/ruby-sdk/current/howtos/n1ql-queries-with-sdk.html#scan-consistency[Scan Consistency] -- the default Not Bounded is used.
 * https://docs.couchbase.com/dotnet-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html[Transactions].
-* Synchronous operations are not supported (https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations[Similar to Cosmos DB EF Core Provider]) and methods will throw exceptions if used.
+* Synchronous operations are not supported https://learn.microsoft.com/en-us/ef/core/providers/cosmos/limitations[Similar to Cosmos DB EF Core Provider] and methods will throw exceptions if used.
 * Most all ADO.NET features are only partially supported.
 * Nested documents are stored in seperate collections.
 * https://learn.microsoft.com/en-us/ef/core/modeling/inheritance[Discriminator] fields must be explicitly added to your entities.
