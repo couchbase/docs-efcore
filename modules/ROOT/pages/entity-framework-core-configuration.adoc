@@ -1,12 +1,20 @@
 = Configuring the EF Core Couchbase DB Provider
+:page-toclevels: 2
+:description: Couchbase EFCore configuration choices
+
+
+[abstract]
+{description}
 
 
 The EF Core Couchbase DB provider ties directly into https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection[.NET Core Dependency Injection (DI)] via the https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html#connection-di[Couchbase Dependency Injection Library].
 
 == Configuring using IServiceCollection
+
 For most applications dependencies are injected into the .NET Service Container during application startup, often in the class file that contains the `Main()` method:
 
-```
+[source,csharp]
+----
 builder.Services.AddDbContext<SchoolContext>(options=> options
     .UseCouchbase(new ClusterOptions()
     .WithCredentials("Administrator", "password")
@@ -16,17 +24,22 @@ builder.Services.AddDbContext<SchoolContext>(options=> options
             couchbaseDbContextOptions.Bucket = "universities";
             couchbaseDbContextOptions.Scope = "contoso";
         }));
-```
+----
 
-In this example from the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/ContosoUniversity[Contoso University Sample application], the EF Core Couchbase DB Provider is configured in the https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/ContosoUniversity/Program.cs[Program.cs] file. This accomplishes two things: 
+In this example from the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/ContosoUniversity[Contoso University Sample application], the EF Core Couchbase DB Provider is configured in the https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/ContosoUniversity/Program.cs[Program.cs] file. 
+This accomplishes two things: 
 
  . inject the dependency on the Couchbase SDK and 
  . inject the dependency on the EF Core Couchbase Provider into the application for the `SchoolContext`, which is a `DbContext`.
 
-## Configuring using DbContext.OnConfiguring
-The EF Core Couchbase DB Provider can also be configured on a per DbContext level. To do this, override the DbContext.OnConfiguring method and add inject the Couchbase SDK and Provider:
 
-```
+== Configuring using DbContext.OnConfiguring
+
+The EF Core Couchbase DB Provider can also be configured on a per DbContext level.
+To do this, override the DbContext.OnConfiguring method and add inject the Couchbase SDK and Provider:
+
+[source,csharp]
+----
 protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         var loggingFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -40,36 +53,49 @@ protected override void OnConfiguring(DbContextOptionsBuilder options)
                 couchbaseDbContextOptions.Scope = "MyBlog";
             });
     }
-```
+----
 
-You can see an example of this in the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/CouchbaseGettingStarted[CouchbaseGettingStarted] example on https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/CouchbaseGettingStarted/Model.cs#L13[Model.cs] class.
+You can see an example of this in the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/CouchbaseGettingStarted[CouchbaseGettingStarted] example on link:++https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/CouchbaseGettingStarted/Model.cs#L13++[Model.cs] class.
+
 
 == Couchbase SDK options
-Configuring the SDK is largely the same for EF Core Couchbase DB Provider. The SDK's configuration is handled by the ClusterOptions.cs class. More details of the ClusterOptions class can be found in the https://docs.couchbase.com/dotnet-sdk/current/ref/client-settings.html[main SDK documentation].
+
+Configuring the SDK is largely the same for EF Core Couchbase DB Provider. 
+The SDK's configuration is handled by the ClusterOptions.cs class. 
+More details of the ClusterOptions class can be found in the xref:dotnet-sdk:ref:client-settings.adoc[main SDK documentation].
+
+
 
 == EF Core Couchbase DN Provider options
+
 The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Couchbase.EntityFrameworkCore/Infrastructure/CouchbaseDbContextOptionsBuilder.cs[CouchbaseDbContextOptionsBuilder] handles configuration options specific to the provider.
 
+
 == Controlling Querying Casing
-SQL++ is based off JSON, thus is case sensitive both from the Query perspective and the query output. What this means is that your Keyspaces (Bucket, Scopes and Collections), the SQL++ query casing and your entities must have consistent casing.
+
+{sqlpp} is based upon JSON, thus is case sensitive both from the Query perspective and the query output. 
+What this means is that your Keyspaces (Bucket, Scopes, and Collections), the {sqlpp} query casing, and your entities must have consistent casing.
 
 You can control the casing of your entities using standard `NewtonSoft.JsonProperty` and or `System.Text.Json.JsonPropertyName` attributes, by the property or field names themselves and by using the `Column` attribute.
 
-The generated SQL++ casing can be controlled via the https://www.nuget.org/packages/EFCore.NamingConventions[EFCore.NamingConventions] library:
-```
+The generated {sqlpp} casing can be controlled via the https://www.nuget.org/packages/EFCore.NamingConventions[EFCore.NamingConventions] library:
+
+[source,csharp]
+----
 dotnet add package EFCore.NamingConventions --version 8.0.3
-```
+----
+
 Which is added as part of configuration of the EF Core Couchbase DB Provider:
-```
+
+[source,csharp]
+----
 optionsBuilder.UseCouchbase(_clusterOptions, couchbaseDbContextOptions =>
 {
     couchbaseDbContextOptions.Bucket = "travel-sample";
     couchbaseDbContextOptions.Scope = "inventory";
 });
 optionsBuilder.UseCamelCaseNamingConvention();
-```
+----
 
-https://github.com/efcore/EFCore.NamingConventions[Documentation] for EFCore.Naming Conventions is located on the Github repo. Of interest is the section on https://github.com/efcore/EFCore.NamingConventions?tab=readme-ov-file#supported-naming-conventions[supported naming conventions].
-
-
-
+https://github.com/efcore/EFCore.NamingConventions[Documentation] for EFCore.Naming Conventions is located in the GitHub repo. 
+Of interest is the section on link:++https://github.com/efcore/EFCore.NamingConventions?tab=readme-ov-file#supported-naming-conventions++[supported naming conventions].
