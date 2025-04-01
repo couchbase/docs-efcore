@@ -60,7 +60,7 @@ dotnet new console
 * Once you have created the console application add the dependency on `Couchbase.EntityFrameworkCore`:
 +
 ----
-dotnet install Couchbase.EntityFrameworkCore --version 1.0.0-dp1
+dotnet install Couchbase.EntityFrameworkCore --version 1.0.0
 ----
 
 * In the project directory, create Model.cs with the following code:
@@ -163,7 +163,6 @@ Console.WriteLine("Delete the blog");
 db.Remove(blog);
 await db.SaveChangesAsync();
 ----
-
 
 == Run the app
 
