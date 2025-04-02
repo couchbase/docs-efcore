@@ -1,6 +1,6 @@
 name: efcore-provider
 version: '1.0'
-title: Couchbase Entity Framework Core Provider
+title: .NET Entity Framework
 start_page: ROOT:overview.adoc
 nav:
 - modules/ROOT/nav.adoc
