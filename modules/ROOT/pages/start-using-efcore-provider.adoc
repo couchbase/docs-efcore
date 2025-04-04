@@ -51,7 +51,7 @@ Note that names are *case-sensitive*.
 or https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio?pivots=dotnet-8-0[Visual Studio] 
 or via the https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new[Command Line]:
 +
-[source,bash]
+[source,console]
 ----
 mkdir CouchbaseGettingStarted
 cd CouchbaseGettingStarted
@@ -59,7 +59,7 @@ dotnet new console
 ----
 * Once you have created the console application add the dependency on `Couchbase.EntityFrameworkCore`:
 +
-[source,bash]
+[source,console]
 ----
 dotnet install Couchbase.EntityFrameworkCore --version 1.0.0-dp1
 ----
@@ -173,7 +173,7 @@ await db.SaveChangesAsync();
 * _Debug > Start Without Debugging_ in VS Or,
 * `dotnet run` in .NET CLI
 +
-[source,bash]
+[source,console]
 ----
 /source/couchbase-dotnet-ef/samples/CouchbaseGettingStarted/bin/Debug/net8.0/CouchbaseGettingStarted
 Inserting a new blog
