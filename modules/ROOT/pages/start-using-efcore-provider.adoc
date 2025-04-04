@@ -51,16 +51,17 @@ Note that names are *case-sensitive*.
 or https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio?pivots=dotnet-8-0[Visual Studio] 
 or via the https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new[Command Line]:
 +
+[source,bash]
 ----
 mkdir CouchbaseGettingStarted
 cd CouchbaseGettingStarted
 dotnet new console
--
----
+----
 * Once you have created the console application add the dependency on `Couchbase.EntityFrameworkCore`:
 +
+[source,bash]
 ----
-dotnet install Couchbase.EntityFrameworkCore --version 1.0.0
+dotnet install Couchbase.EntityFrameworkCore --version 1.0.0-dp1
 ----
 
 * In the project directory, create Model.cs with the following code:
@@ -123,6 +124,7 @@ public class Post
 
 * Open _Program.cs_ and replace the contents with the following code
 +
+[source,csharp]
 ----
 using var db = new BloggingContext();
 
@@ -164,12 +166,14 @@ db.Remove(blog);
 await db.SaveChangesAsync();
 ----
 
+
 == Run the app
 
 * _Run 'CouchbaseGettingStarted'_ in Rider IDE Or,
 * _Debug > Start Without Debugging_ in VS Or,
 * `dotnet run` in .NET CLI
 +
+[source,bash]
 ----
 /source/couchbase-dotnet-ef/samples/CouchbaseGettingStarted/bin/Debug/net8.0/CouchbaseGettingStarted
 Inserting a new blog
