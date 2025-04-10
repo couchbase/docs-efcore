@@ -1,6 +1,6 @@
 = Getting Started with Couchbase EFCore
 :page-toclevels: 2
-:description: Get up and running with `Couchbase.EntityFrameworkCore` via a Console application.
+:description: pass:q[Get up and running with `Couchbase.EntityFrameworkCore` via a Console application.]
 
 
 // Note to editors
