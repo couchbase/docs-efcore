@@ -146,7 +146,7 @@ ORDER BY `p`.`AuthorId`
 
 == Supported Aggregate operators
 
-The following aggregate operators are supported by the developer preview:
+The following aggregate operators are supported by the GA:
 
 .Table Supported Aggregate operators
 |===
@@ -159,15 +159,16 @@ The following aggregate operators are supported by the developer preview:
 | `Sum(x => x.Property)`         | `SUM(Property)`
 |===
 
+Other operators may or may not be supported in the GA.
 
 == SQL queries
 
 === SqlRaw
 
-`DbContext.SqlRaw` is not implemented as of the EF Core Couchbase DB Provider Developer Preview because it depends on ADO.NET parameters which are minimally supported in the preview.
+`DbContext.SqlRaw` is not implemented as of the EF Core Couchbase DB Provider GA because it depends on ADO.NET parameters which are minimally supported in the preview.
 
 [NOTE] 
-`DbContext.FromSql` will throw a `NotImplementedException` in EF Core Couchbase DB Provider Developer Preview 1.
+`DbContext.FromSql` will throw a `NotImplementedException` in EF Core Couchbase DB Provider GA 1.
 
 === FromSqlRaw
 
@@ -180,3 +181,21 @@ var person = await context.Set<Person>()
     .FromSqlRaw(query, 1)
     .FirstOrDefaultAsync();
 ----
+
+=== META Support
+The https://docs.couchbase.com/server/current/n1ql/n1ql-language-reference/metafun.html#meta[META function] is supported in the EF Core Couchbase DB Provider GA 1.0, however, lamda expression is not supported. This means you will need to use the `FromSqlRaw` method to execute the query.
+
+[source,csharp]
+----
+using (var context = new BloggingContext())
+{
+    await _couchbaseFixture.InitializeBloggingAsync();
+    var statement = "SELECT `b`.* FROM `Content`.`Blogs`.`Blog` as `b` WHERE META().id = \"2\"";
+    var blog = await context.Blogs.FromSqlRaw(statement).AsNoTracking().FirstOrDefaultAsync();
+
+    Assert.NotNull(blog);
+}
+----
+
+[NOTE]
+In addition to META, other SQL++ functions not yet supported in the EF Core Couchbase DB Provider, may be executed in a similar way.

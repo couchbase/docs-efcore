@@ -66,10 +66,13 @@ More details of the ClusterOptions class can be found in the xref:dotnet-sdk:ref
 
 
 
-== EF Core Couchbase DN Provider options
+== EF Core Couchbase DB Provider options
 
 The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Couchbase.EntityFrameworkCore/Infrastructure/CouchbaseDbContextOptionsBuilder.cs[CouchbaseDbContextOptionsBuilder] handles configuration options specific to the provider.
 
+== Controlling JSON casing
+
+By default the SDK uses Camel casing for JSON serialization. While this can be changed via the Serializer settings, we suggest you stick to the default unless you have a specific reason to change it.
 
 == Controlling Querying Casing
 
@@ -99,3 +102,6 @@ optionsBuilder.UseCamelCaseNamingConvention();
 
 https://github.com/efcore/EFCore.NamingConventions[Documentation] for EFCore.Naming Conventions is located in the GitHub repo. 
 Of interest is the section on link:++https://github.com/efcore/EFCore.NamingConventions?tab=readme-ov-file#supported-naming-conventions++[supported naming conventions].
+
+[IMPORTANT]
+The casing of the queries that EF Core generates much match the casing of the JSON stored in Couchbase. The reason is because JSON is case sensitive and if they do not match, the queries will not return the expected results.

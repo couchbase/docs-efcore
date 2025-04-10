@@ -41,7 +41,7 @@ The code above performs the following steps:
 == Approach 2: Bulk Update with ExecuteUpdate and ExecuteDelete
 
 [CAUTION] 
-`ExecuteUpdate` and `ExecuteDelete` are only minimally supported in this developer preview, for experimental usage only.
+`ExecuteUpdate` and `ExecuteDelete` are only minimally supported in the GA, for experimental usage only.
 
 `SaveChanges` is a powerful model for persisting changes to the database, but has some limitations.
 The main limitation is that each entity must be tracked and when `SaveChanges` is called, each modified or added entity will be persisted to the database.
