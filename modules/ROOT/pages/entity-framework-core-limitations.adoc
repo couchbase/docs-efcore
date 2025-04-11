@@ -1,5 +1,5 @@
 = Couchbase EFCore Provider Limitations
-:description: The Couchbase EFCore Provider is a work in progress, and does not yet support all of the features of EF Core or Couchbase, furthermore data loss is possible (and preventable)
+:description: The Couchbase EFCore Provider is a work in progress, and does not yet support all of the features of EF Core or Couchbase, furthermore data loss is possible (and preventable).
 
 
 [abstract]
@@ -8,29 +8,32 @@
 
 == Unsupported EF Core Features
 
-* https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager[Eager loading/fetching] - use the Include and/or ThenInclude methods to specify related data to be included in query results.
-* https://learn.microsoft.com/en-us/ef/core/modeling/generated-properties?tabs=data-annotations[Value generation] - auto-generated values for properties and or primary keys.
-* https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli[Migrations] - The migrations feature in EF Core provides a way to incrementally update the database schema to keep it in sync with the application's data model while preserving existing data in the database.
-* https://learn.microsoft.com/en-us/ef/core/modeling/table-splitting[Table splitting] - EF Core allows to map two or more entities to a single row. This is called table splitting or table sharing.
-* Anything features not explicitly mentioned in this documentation
+* https://learn.microsoft.com/en-us/ef/core/querying/related-data/eager[Eager loading/fetching] -- use the `Include` and/or `ThenInclude` methods to specify related data to be included in query results.
+* https://learn.microsoft.com/en-us/ef/core/modeling/generated-properties?tabs=data-annotations[Value generation] -- auto-generated values for properties and or primary keys.
+* https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli[Migrations] -- The migrations feature in EF Core provides a way to incrementally update the database schema to keep it in sync with the application's data model while preserving existing data in the database.
+* https://learn.microsoft.com/en-us/ef/core/modeling/table-splitting[Table splitting] -- EF Core allows to map two or more entities to a single row. This is called table splitting or table sharing.
+* Any features not explicitly mentioned in this documentation
+
 
 == Unsupported Couchbase Features
 
-* All queries use https://docs.couchbase.com/java-sdk/current/concept-docs/n1ql-query.html#index-consistency[NOT_BOUNDED]. This means that the query will not wait for the index to be updated before returning results. This is the default behavior for Couchbase queries.
-* Only https://docs.couchbase.com/dotnet-sdk/current/howtos/n1ql-queries-with-sdk.html#query-options[default values] are used for all queries generated and executed against Couchbase.
-* Only https://docs.couchbase.com/dotnet-sdk/current/ref/client-settings.html[default values] are used for K/V CRUD operations.
-* https://docs.couchbase.com/dotnet-sdk/current/howtos/distributed-acid-transactions-from-the-sdk.html[Transactions] are not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/concept-docs/durability-replication-failure-considerations.html#durability[Enhanced durability] is not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/howtos/concurrent-document-mutations.html[Compare and swap (CAS)] is not currently supported.
-*https://docs.couchbase.com/dotnet-sdk/current/howtos/concurrent-document-mutations.html#pessimistic-locking[Pessimistic locking] is not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/concept-docs/encryption.html[Field level encryption] is not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/concept-docs/xattr.html[XATTR and Virtual XATTR] are not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/concept-docs/subdocument-operations.html[Sub-Document] operations are not currently supported.
-* https://docs.couchbase.com/dotnet-sdk/current/concept-docs/nonjson.html[Non-JSON Document types] are not currently supported.
+* All queries use xref:dotnet-sdk:concept-docs:n1ql-query.adoc#index-consistency[NOT_BOUNDED]. This means that the query will not wait for the index to be updated before returning results. This is the default behavior for Couchbase queries.
+* Only xref:dotnet-sdk:howtos:n1ql-queries-with-sdk.adoc#query-options[default values] are used for all queries generated and executed against Couchbase.
+* Only xref:dotnet-sdk:ref:client-settings.adoc[default values] are used for K/V CRUD operations.
+* xref:dotnet-sdk:howtos:distributed-acid-transactions-from-the-sdk.adoc[Transactions] are not currently supported.
+* xref:dotnet-sdk:concept-docs:durability-replication-failure-considerations.adoc#durability[Enhanced durability] is not currently supported.
+* xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc[Compare and swap (CAS)] is not currently supported.
+* xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc#pessimistic-locking[Pessimistic locking] is not currently supported.
+* xref:dotnet-sdk:concept-docs:encryption.adoc[Field level encryption] is not currently supported.
+* xref:dotnet-sdk:concept-docs:xattr.adoc[XATTR and Virtual XATTR] are not currently supported.
+* xref:dotnet-sdk:concept-docs:subdocument-operations.adoc[Sub-Document] operations are not currently supported.
+* xref:dotnet-sdk:concept-docs:nonjson.adoc[Non-JSON Document types] are not currently supported.
+
 
 == Only Async Queries Supported
 
-Limitations on the Couchbase SDK mean that only async queries are supported. If a sync query is attempted, a `NotImplementedException` will be thrown with the following message:
+Limitations on the Couchbase SDK mean that only async queries are supported.
+If a sync query is attempted, a `NotImplementedException` will be thrown with the following message:
 
 [quote, "NotImplementedException"]
 ----
@@ -40,15 +43,24 @@ Core to access Couchbase database. See Couchbase EF Core Database Provider
 documentation for more information."
 ----
 
-All async queries are expected to be awaited.  Avoid using `Wait()` or `Result()` on async queries, as this is the https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/[sync-over-async anti-pattern] and leads to deadlocks and thread pool starvation.
+All async queries are expected to be awaited. 
+Avoid using `Wait()` or `Result()` on async queries, as this is the https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/[sync-over-async anti-pattern]
+and leads to deadlocks and thread pool starvation.
+
 
 == Be Wary of Data Loss
 
-The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model. This means that some features of EF Core may not work as expected, and data loss is possible. For example, if you have a one-to-many relationship and you delete the parent entity, the child entities may not be deleted as well. This is because Couchbase does not have the concept of foreign keys or cascading deletes. It is important to understand the limitations of the Couchbase EF Core Provider and to use it accordingly.
+The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model.
+This means that some features of EF Core may not work as expected, and data loss is possible.
+For example, if you have a one-to-many relationship and you delete the parent entity, the child entities may not be deleted as well.
+This is because Couchbase does not have the concept of foreign keys or cascading deletes.
+It is important to understand the limitations of the Couchbase EF Core Provider and to use it accordingly.
 
-Additionally, parent JSON and chlidren document are stored in their own https://docs.couchbase.com/server/current/learn/data/scopes-and-collections.html[Collections]. Consider the following JSON document:
+Additionally, parent JSON and chlidren document are stored in their own https://docs.couchbase.com/server/current/learn/data/scopes-and-collections.html[Collections].
+Consider the following JSON document:
 
-```JSON
+[source,json]
+----
 {
   "id": "1",
   "name": "John Doe",
@@ -59,11 +71,12 @@ Additionally, parent JSON and chlidren document are stored in their own https://
     }
   ]
 }
-```
+----
 
 This will be mapped to the following entities:
 
-```C#`
+[source,csharp]
+----
 public class Person
 {
     public string Id { get; set; }
@@ -76,23 +89,26 @@ public class Child
     public string Id { get; set; }
     public string Name { get; set; }
 }
+----
 
-```
+In the a `DbContext.OnModelCreating` method, you would configure the entities like this:
 
-In the a DbContext.OnModelCreating method, you would configure the entities like this:
 
-```C#
-
+[source,csharp]
+----
 builder.Entity<Person>().ToCouchbaseCollection(this, "parent");
 builder.Entity<Child>().ToCouchbaseCollection(this, "child");
+----
 
-```
-
-In this case we have a parent document that represents a person and a child document that represents a child of that person. If the child document does not have a primary key, it will be lost when the parent document is saved. This is because EF Core will not be able to find the child document and it will not be saved to the database. Additionally, two collections must exist in Couchbase: `parent` and `child`.
+In this case we have a parent document that represents a person and a child document that represents a child of that person.
+If the child document does not have a primary key, it will be lost when the parent document is saved.
+This is because EF Core will not be able to find the child document and it will not be saved to the database.
+Additionally, two collections must exist in Couchbase: `parent` and `child`.
 
 Now take this document for example:
 
-```JSON
+[source,json]
+----
 {
   "id": "1",
   "name": "John Doe",
@@ -102,25 +118,31 @@ Now take this document for example:
     }
   ]
 }
-```
+----
 
 In this document, the child document does not have an id, so it will be lost when the parent document is saved even if both collections exist.
 
-== Avoid dynamic or object type properties
 
-The dynamic and/or the System.Object type can be used as a property type in EF Core. This is not recommended for Couchbase, as it will not be able to map the property to a JSON document. This is the actual type of the field can only be determined at runtime. It is recommended to use a specific type for the property, such as a string or a number.
+== Avoid Dynamic or Object Type Properties
+
+The dynamic and/or the System.Object type can be used as a property type in EF Core.
+This is not recommended for Couchbase, as it will not be able to map the property to a JSON document.
+This is the actual type of the field can only be determined at runtime.
+It is recommended to use a specific type for the property, such as a string or a number.
+
 
 == Unsupported LINQ Queries
 
-LINQ queries can be a near unlimited variety of queries, and the EF Core Couchbase DB Provider does not support all of them. If a lambda expression cannot be translated into a SQL++ statement, then query will error out with a `InvalidOperationException` and a message similar to the following:
+LINQ queries can be a near unlimited variety of queries, and the EF Core Couchbase DB Provider does not support all of them.
+If a lambda expression cannot be translated into a {sqlpp} statement, then query will error out with a `InvalidOperationException` and a message similar to the following:
 
-```
+----
 System.InvalidOperationException
 The LINQ expression 'DbSet<Customer>()
     .Where(c => (int)DbSet<Order>()
         .Where(o => o.CustomerID == "John Doe")
         .Select(o => (int?)o.CustomerID.Length)
         .FirstOrDefault() == 0)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.`
-```
+----
 
 Note that while the error message indicats that the query cannot re-rewritten using `AsEnumerable` or `ToList`, this is not a supported feature of the EF Core Couchbase DB Provider as it is sync-over-async.
