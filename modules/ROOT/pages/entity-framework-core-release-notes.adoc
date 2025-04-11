@@ -20,13 +20,14 @@ All patch releases for each dot minor release should be API compatible, and safe
 any changes to expected behavior are noted in the release notes that follow.
 
 
-=== Version 1.0.0 (?? March 2025)
+=== Version 1.0.0 (?? April 2025)
+
 Version 1.0.0 is the initial release of the Couchbase EF Core Provider.
 
 [Download] | API Reference |
 https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/1.0.0[NUGET]
 
 
-=== Fixed Issues
+==== Fixed Issues
 
-=== New Features and Behavioral Changes
+==== New Features and Behavioral Changes
