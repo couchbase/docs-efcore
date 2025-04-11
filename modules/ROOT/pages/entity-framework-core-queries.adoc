@@ -146,7 +146,7 @@ ORDER BY `p`.`AuthorId`
 
 == Supported Aggregate operators
 
-The following aggregate operators are supported by the GA:
+The following aggregate operators are supported by the 1.0 release:
 
 .Table Supported Aggregate operators
 |===
@@ -159,16 +159,16 @@ The following aggregate operators are supported by the GA:
 | `Sum(x => x.Property)`         | `SUM(Property)`
 |===
 
-Other operators may or may not be supported in the GA.
+Other operators may or may not be supported in the 1.0 release.
 
 == SQL queries
 
 === SqlRaw
 
-`DbContext.SqlRaw` is not implemented as of the EF Core Couchbase DB Provider GA because it depends on ADO.NET parameters which are minimally supported in the preview.
+`DbContext.SqlRaw` is not implemented as of the EF Core Couchbase DB Provider 1.0 release because it depends on ADO.NET parameters which are minimally supported in the initial release.
 
 [NOTE] 
-`DbContext.FromSql` will throw a `NotImplementedException` in EF Core Couchbase DB Provider GA 1.
+`DbContext.FromSql` will throw a `NotImplementedException` in EF Core Couchbase DB Provider 1.0.
 
 === FromSqlRaw
 
@@ -183,7 +183,10 @@ var person = await context.Set<Person>()
 ----
 
 === META Support
-The https://docs.couchbase.com/server/current/n1ql/n1ql-language-reference/metafun.html#meta[META function] is supported in the EF Core Couchbase DB Provider GA 1.0, however, lamda expression is not supported. This means you will need to use the `FromSqlRaw` method to execute the query.
+
+The xref:server:n1ql:n1ql-language-reference/metafun.adoc#meta[META function] is supported in the EF Core Couchbase DB Provider version 1.0.
+Hhowever, lamda expression is not supported.
+This means you will need to use the `FromSqlRaw` method to execute the query.
 
 [source,csharp]
 ----
@@ -197,5 +200,5 @@ using (var context = new BloggingContext())
 }
 ----
 
-[NOTE]
-In addition to META, other SQL++ functions not yet supported in the EF Core Couchbase DB Provider, may be executed in a similar way.
+[TIP]
+In addition to META, other {sqlpp} functions not yet supported in the EF Core Couchbase DB Provider may be executed in a similar way.
