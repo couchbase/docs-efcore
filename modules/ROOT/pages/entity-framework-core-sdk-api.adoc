@@ -6,11 +6,18 @@
 {description}
 
 == Entity Framework Core API Reference
-The Couchbase EF Core Provider is an extension of the Entity Framework Core API. The API Reference is largely consistent with the https://learn.microsoft.com/en-us/ef/[Entity Framework Core API Reference], with the addition of Couchbase-specific features. These features are covered in the following sections:
 
-* https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-configuration.html[Couchbase EF Core Configuration]
-* https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-modeling.html[Couchbase EF Core Modeling]
-* https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-crud-data.html[Couchbase EF Core CRUD]
-* https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-queries.html[Couchbase EF Core Querying]
+The Couchbase EF Core Provider is an extension of the Entity Framework Core API.
+The API Reference is largely consistent with the https://learn.microsoft.com/en-us/ef/[Entity Framework Core API Reference], with the addition of Couchbase-specific features.
+These features are covered in the following sections:
 
-We suggest you start with the https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-configuration.html[Couchbase EF Core Configuration] section, and then move on to the https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-modeling.html[Couchbase EF Core Modeling] section. The https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-queries.html[Couchbase EF Core Querying] section is a good place to learn about the Couchbase-specific querying features. The https://docs-staging.couchbase.com/efcore-provider/current/entity-framework-core-crud-data.html[Couchbase EF Core CRUD] section is a good place to learn about the Couchbase-specific CRUD features. Features and subjects not covered in this documentation can likely be found in the https://learn.microsoft.com/en-us/ef/[EF Core documentation].
+* xref:entity-framework-core-configuration.adoc[Couchbase EF Core Configuration]
+* xref:entity-framework-core-modeling.adoc[Couchbase EF Core Modeling]
+* xref:entity-framework-core-crud-data.adoc[Couchbase EF Core CRUD]
+* xref:entity-framework-core-queries.adoc[Couchbase EF Core Querying]
+
+We suggest you start with the xref:entity-framework-core-configuration.adoc[Couchbase EF Core Configuration] section,
+and then move on to the xref:entity-framework-core-modeling.adoc[Couchbase EF Core Modeling] section.
+The xref:entity-framework-core-queries.adoc[Couchbase EF Core Querying] section is a good place to learn about the Couchbase-specific querying features.
+The xref:entity-framework-core-crud-data.adoc[Couchbase EF Core CRUD] section is a good place to learn about the Couchbase-specific CRUD features.
+Features and subjects not covered in this documentation can likely be found in the https://learn.microsoft.com/en-us/ef/[EF Core documentation].
