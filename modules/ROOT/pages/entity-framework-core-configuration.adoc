@@ -7,7 +7,8 @@
 {description}
 
 
-The EF Core Couchbase DB provider ties directly into https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection[.NET Core Dependency Injection (DI)] via the https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html#connection-di[Couchbase Dependency Injection Library].
+The EF Core Couchbase DB provider ties directly into https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection[.NET Core Dependency Injection (DI)] via the
+https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html#connection-di[Couchbase Dependency Injection Library].
 
 == Configuring using IServiceCollection
 
@@ -26,7 +27,8 @@ builder.Services.AddDbContext<SchoolContext>(options=> options
         }));
 ----
 
-In this example from the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/ContosoUniversity[Contoso University Sample application], the EF Core Couchbase DB Provider is configured in the https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/ContosoUniversity/Program.cs[Program.cs] file. 
+In this example from the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/ContosoUniversity[Contoso University Sample application],
+the EF Core Couchbase DB Provider is configured in the https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/ContosoUniversity/Program.cs[Program.cs] file. 
 This accomplishes two things: 
 
  . inject the dependency on the Couchbase SDK and 
@@ -55,7 +57,8 @@ protected override void OnConfiguring(DbContextOptionsBuilder options)
     }
 ----
 
-You can see an example of this in the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/CouchbaseGettingStarted[CouchbaseGettingStarted] example on link:++https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/CouchbaseGettingStarted/Model.cs#L13++[Model.cs] class.
+You can see an example of this in the https://github.com/couchbaselabs/couchbase-efcore-provider/tree/main/samples/CouchbaseGettingStarted[CouchbaseGettingStarted]
+example on link:++https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/samples/CouchbaseGettingStarted/Model.cs#L13++[Model.cs] class.
 
 
 == Couchbase SDK options
@@ -72,7 +75,8 @@ The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Cou
 
 == Controlling JSON casing
 
-By default the SDK uses Camel casing for JSON serialization. While this can be changed via the Serializer settings, we suggest you stick to the default unless you have a specific reason to change it.
+By default the SDK uses Camel casing for JSON serialization.
+While this can be changed via the Serializer settings, we suggest you stick to the default unless you have a specific reason to change it.
 
 == Controlling Querying Casing
 
