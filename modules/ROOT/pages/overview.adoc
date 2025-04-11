@@ -10,15 +10,19 @@ The provider is maintained as part of the https://github.com/couchbaselabs/couch
 This documentation contains the following pages:
 
 * xref:ROOT:start-using-efcore-provider.adoc[Getting Started]
+* xref:ROOT:entity-framework-core-configuration.adoc[]
 * xref:ROOT:entity-framework-core-modeling.adoc[]
 * xref:ROOT:entity-framework-core-queries.adoc[]
 * xref:ROOT:entity-framework-core-crud-data.adoc[]
-* xref:ROOT:entity-framework-core-configuration.adoc[]
 * xref:ROOT:entity-framework-core-release-notes.adoc[Release Notes]
 * xref:ROOT:entity-framework-core-compatibility-guide.adoc[Compatibility Guide]
-* [API Reference]
+** xref:ROOT:entity-framework-core-limitations.adoc[]
+* xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference]
 * https://github.com/couchbaselabs/couchbase-efcore-provider[GitHub Source Code Repo]
 
+
+
+////
 == Limitations
 
 The Couchbase EF Core Provider is a work in progress, and does not yet support all of the features of EF Core or Couchbase.
@@ -37,3 +41,4 @@ The Couchbase EF Core Provider is a work in progress, and does not yet support a
 * The ability to use https://docs.couchbase.com/dotnet-sdk/current/howtos/n1ql-queries-with-sdk.html#query-options[custom options] for KV and Query. The default options are used.
 * Not all LINQ queries are supported. The provider will throw exceptions if unsupported LINQ queries are used. The exception will state that this is the case. Jira tickets with this information can be created for these issues in the Jira https://jira.issues.couchbase.com/jira/core/projects/CBEF/[CBEF] project.
 * Not all SQL++ queries or functions are supported. The provider will throw exceptions if unsupported SQL++ queries are used. The exception will contain parsing or other information as to why it failed. Jira tickets with this information can be created for these issues in the Jira https://jira.issues.couchbase.com/jira/core/projects/CBEF/[CBEF] project.
+////
