@@ -85,7 +85,7 @@ This will create a Keyspace that looks like this:
 `universities`.`oxbridge`.`course`
 ----
 
-In this case the Scope is "oxbridge" and the Collection is "source".
+In this case the Bucket is "universities", the Scope is "oxbridge", and the Collection is "source".
 
 image::img_12.png
 

@@ -14,7 +14,9 @@ Entity Framework Core (EF Core) supports two fundamental approaches for saving d
 
 == Approach 1: Change Tracking and SaveChanges
 
-In many scenarios, your program needs to query some data from the database, perform some modification on it, and save those modifications back; this is sometimes referred to as a https://en.wikipedia.org/wiki/Unit_of_work["Unit of Work"]. For example, let's assume that you have a set of Blogs, and you'd like to change the Url property of one of them.
+In many scenarios, your program needs to query some data from the database, perform some modification on it, and save those modifications back;
+this is sometimes referred to as a https://en.wikipedia.org/wiki/Unit_of_work["Unit of Work"].
+For example, let's assume that you have a set of Blogs, and you'd like to change the Url property of one of them.
 
 [NOTE] 
 The reasons for calling `DbContext.Dispose` in this manner are not the same in a RDBMS backed EFCore Provider as they are with the EFCore Couchbase DB Provider. 
@@ -41,7 +43,7 @@ The code above performs the following steps:
 == Approach 2: Bulk Update with ExecuteUpdate and ExecuteDelete
 
 [CAUTION] 
-`ExecuteUpdate` and `ExecuteDelete` are only minimally supported in this developer preview, for experimental usage only.
+`ExecuteUpdate` and `ExecuteDelete` are only minimally supported in the 1.0 release, for experimental usage only.
 
 `SaveChanges` is a powerful model for persisting changes to the database, but has some limitations.
 The main limitation is that each entity must be tracked and when `SaveChanges` is called, each modified or added entity will be persisted to the database.
