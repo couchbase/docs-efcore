@@ -145,4 +145,4 @@ The LINQ expression 'DbSet<Customer>()
         .FirstOrDefault() == 0)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.`
 ----
 
-Note that while the error message indicats that the query cannot re-rewritten using `AsEnumerable` or `ToList`, this is not a supported feature of the EF Core Couchbase DB Provider as it is sync-over-async.
+Note that while the error message indicates that the query cannot re-rewritten using `AsEnumerable` or `ToList`, this is not a supported feature of the EF Core Couchbase DB Provider as it is sync-over-async.
