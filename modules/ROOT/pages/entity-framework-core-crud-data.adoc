@@ -19,7 +19,8 @@ this is sometimes referred to as a https://en.wikipedia.org/wiki/Unit_of_work["U
 For example, let's assume that you have a set of Blogs, and you'd like to change the Url property of one of them.
 
 [NOTE] 
-Like any EF Core Provider DbContext lifetime, configuration and initialization https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/[best practices] should be used with the DbContext. Always call https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#the-dbcontext-lifetime[Dispose()] when done using the DbContext.
+Like any EF Core Provider `DbContext`, lifetime, configuration, and initialization https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/[best practices] should be used with the `DbContext`.
+Always call https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#the-dbcontext-lifetime[Dispose()] when done using the `DbContext`.
 
 In EF, this is typically done as follows:
 [source,csharp]
