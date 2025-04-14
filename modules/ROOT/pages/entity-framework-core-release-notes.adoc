@@ -24,6 +24,7 @@ any changes to expected behavior are noted in the release notes that follow.
 
 Version https://jira.issues.couchbase.com/issues/?jql=project%20%3D%20%22CBEF%22%20AND%20fixVersion%20%3D%20%221.0.0%22[1.0.0] is the initial release of the Couchbase EF Core Provider.
 
-[Download] | xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference] |
+// [Download] | 
+xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference] |
 https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/1.0.0[NUGET]
 
