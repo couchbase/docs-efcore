@@ -1,9 +1,9 @@
 = Couchbase EFCore Provider Limitations
-:description: The Couchbase EFCore Provider is a work in progress, and does not yet support all of the features of EF Core or Couchbase, furthermore data loss is possible (and preventable).
-
+:description: The Couchbase EFCore Provider is still evolving and does not currently support all features of EF Core or Couchbase. 
 
 [abstract]
 {description}
+We recommend reviewing the known limitations to avoid potential issues and ensure a smooth development experience.
 
 
 == Unsupported EF Core Features
