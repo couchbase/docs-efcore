@@ -49,14 +49,15 @@ and leads to deadlocks and thread pool starvation.
 
 == Subdocument (denormalization) not supported
 
-The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model. This means that some features of EF Core may not work as expected, and data may not be saved as expected. For example, if you have a one-to-many relationship and you delete the parent entity, the child entities may not be deleted as well.
+The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model.
+This means that some features of EF Core may not work as expected, and data may not be saved as expected.
+For example, if you have a one-to-many relationship and you delete the parent entity, the child entities may not be deleted as well.
 This is because Couchbase does not have the concept of foreign keys or cascading deletes.
+
 It is important to understand the limitations of the Couchbase EF Core Provider and to use it accordingly.
 
 Additionally, parent JSON and chlidren document are stored in their own https://docs.couchbase.com/server/current/learn/data/scopes-and-collections.html[Collections].
-Consider the following JSON document:
-
-In this case we have a parent document that represents a person and a child document that represents a child of that person.
+Consider the following JSON document; in this case we have a parent document that represents a person and a child document that represents a child of that person.
 If the child document does not have a primary key, it will be lost when the parent document is saved.
 This is because EF Core will not be able to find the child document and it will not be saved to the database.
 Additionally, two collections must exist in Couchbase: `parent` and `child`.
@@ -76,7 +77,8 @@ Now take this document for example:
 }
 ----
 
-In this document, the child document does not have an id, so it will be lost when the parent document is saved even if both collections exist. To fix this, you need to ensure that the child document has an id, like so:
+In this document, the child document does not have an id, so it will be lost when the parent document is saved even if both collections exist.
+To fix this, you need to ensure that the child document has an id, like so:
 
 [source,json]
 ----
