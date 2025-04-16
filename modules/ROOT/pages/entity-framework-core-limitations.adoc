@@ -48,7 +48,7 @@ Avoid using `Wait()` or `Result()` on async queries, as this is the https://lear
 and leads to deadlocks and thread pool starvation.
 
 
-== Be Wary of Data Loss
+== Subdocument (Denormalization) Not Supported
 
 The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model.
 This means that some features of EF Core may not work as expected, and data loss is possible.
