@@ -94,7 +94,7 @@ public class BloggingContext : DbContext
     
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        using var loggingFactory = LoggerFactory.Create(builder => builder.AddConsole());
+        var loggingFactory = LoggerFactory.Create(builder => builder.AddConsole());
         options.UseCouchbase(
             new ClusterOptions()
                 .WithCredentials("USERNAME", "PASSWORD")
