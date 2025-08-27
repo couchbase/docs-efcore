@@ -86,6 +86,8 @@ using Couchbase.EntityFrameworkCore;
 using Couchbase.EntityFrameworkCore.Extensions;
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+
 
 public class BloggingContext : DbContext
 {
@@ -99,6 +101,7 @@ public class BloggingContext : DbContext
             new ClusterOptions()
                 .WithCredentials("USERNAME", "PASSWORD")
                 .WithConnectionString("couchbases://cb.xxxxxxxx.cloud.couchbase.com")
+                .UseCamelCaseNamingConvention();
                 .WithLogging(loggingFactory), 
             couchbaseDbContextOptions =>
             {
