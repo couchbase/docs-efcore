@@ -86,6 +86,7 @@ using Couchbase.EntityFrameworkCore;
 using Couchbase.EntityFrameworkCore.Extensions;
 using Couchbase.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 public class BloggingContext : DbContext
 {
@@ -105,7 +106,7 @@ public class BloggingContext : DbContext
                 couchbaseDbContextOptions.Bucket = "Content";
                 couchbaseDbContextOptions.Scope = "Blogs";
             });
-            optons.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
+            options.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
