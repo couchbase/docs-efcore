@@ -88,7 +88,6 @@ using Couchbase.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
-
 public class BloggingContext : DbContext
 {
     public DbSet<Blog> Blogs { get; set; }
