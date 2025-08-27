@@ -100,14 +100,13 @@ public class BloggingContext : DbContext
             new ClusterOptions()
                 .WithCredentials("USERNAME", "PASSWORD")
                 .WithConnectionString("couchbases://cb.xxxxxxxx.cloud.couchbase.com")
-                .UseCamelCaseNamingConvention();
                 .WithLogging(loggingFactory), 
             couchbaseDbContextOptions =>
             {
                 couchbaseDbContextOptions.Bucket = "Content";
                 couchbaseDbContextOptions.Scope = "Blogs";
             });
-            optons.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
+            options.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
