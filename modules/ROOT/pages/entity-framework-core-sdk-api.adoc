@@ -15,6 +15,8 @@ These features are covered in the following sections:
 * xref:entity-framework-core-modeling.adoc[Couchbase EF Core Modeling]
 * xref:entity-framework-core-crud-data.adoc[Couchbase EF Core CRUD]
 * xref:entity-framework-core-queries.adoc[Couchbase EF Core Querying]
+* xref:entity-framework-core-transactions.adoc[Couchbase EF Core Transactions]
+* xref:entity-framework-core-sequences.adoc[Couchbase EF Core Sequences and generated values]
 
 We suggest you start with the xref:entity-framework-core-configuration.adoc[Couchbase EF Core Configuration] section,
 and then move on to the xref:entity-framework-core-modeling.adoc[Couchbase EF Core Modeling] section.

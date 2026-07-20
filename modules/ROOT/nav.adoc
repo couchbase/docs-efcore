@@ -5,6 +5,8 @@
 * xref:ROOT:entity-framework-core-modeling.adoc[]
 * xref:ROOT:entity-framework-core-queries.adoc[]
 * xref:ROOT:entity-framework-core-crud-data.adoc[]
+* xref:ROOT:entity-framework-core-transactions.adoc[]
+* xref:ROOT:entity-framework-core-sequences.adoc[]
 * xref:ROOT:entity-framework-core-release-notes.adoc[Release Notes]
 * xref:ROOT:entity-framework-core-compatibility-guide.adoc[Compatibility Guide]
 ** xref:ROOT:entity-framework-core-limitations.adoc[]

@@ -1,5 +1,5 @@
 name: efcore-provider
-version: '1.0'
+version: '2.0'
 title: .NET Entity Framework
 start_page: ROOT:overview.adoc
 nav:
@@ -9,12 +9,12 @@ asciidoc:
   attributes:
     page-nav-header-levels: 2
     server_version: '7.6.6'
-    sdk_current_version: '3.8.0'
-    provider_current_version: '1.0.0'
-    sdk_dot_minor: '3.7'
-    provider_dot_minor: '1.0'
+    sdk_current_version: '3.9.3'
+    provider_current_version: '2.0.0-beta.2'
+    sdk_dot_minor: '3.9'
+    provider_dot_minor: '2.0'
     sdk_dot_major: '3.x'
-    provider_dot_major: '1.x'
+    provider_dot_major: '2.x'
     version-server: '7.6'
     version-common: '7.6.6'
     name_platform: '.NET'

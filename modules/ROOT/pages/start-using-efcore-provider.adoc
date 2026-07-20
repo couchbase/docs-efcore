@@ -27,23 +27,30 @@ This is a clone of the https://learn.microsoft.com/en-us/ef/core/get-started/ove
 
 == Prerequisites
 
-* Download and Install https://dotnet.microsoft.com/en-us/download/dotnet/8.0[.NET 8]
+* Download and Install https://dotnet.microsoft.com/en-us/download/dotnet/10.0[.NET 10]
 * Create a https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free  tier account.
 
 
 == Create the Couchbase Capella database
 
-[TIP]  
+[TIP]
 ====
 Checkout this https://jeffrymorris.net/2024/12/07/getting-started-with-ef-core-couchbase-db-provider/[blog] for details on how to set up the Couchbase Capella database for this example.
 ====
 
-After you have created your https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free tier, 
-you must create a xref:server:learn:clusters-and-availability/clusters-and-availability.adoc#clusters[Cluster], 
-a xref:server:learn:buckets-memory-and-storage/buckets.adoc[Bucket] named "Content", 
+After you have created your https://docs.couchbase.com/cloud/get-started/create-account.html[Couchbase Capella] free tier,
+you must create a xref:server:learn:clusters-and-availability/clusters-and-availability.adoc#clusters[Cluster],
+a xref:server:learn:buckets-memory-and-storage/buckets.adoc[Bucket] named "Content",
 a xref:server:learn:data/scopes-and-collections.adoc[Scope] named "Blogs",
 and then xref:server:learn:data/scopes-and-collections.adoc[Collections] called "Blog" and "Post" for storing the documents.
 Note that names are *case-sensitive*.
+
+[IMPORTANT]
+You must also create at least a primary index on each collection before you can query it --
+Couchbase's query service refuses to run a query against a collection with no index at all. Run
+`CREATE PRIMARY INDEX IF NOT EXISTS ON \`Content\`.\`Blogs\`.\`Blog\`` (and the same for `Post`)
+from the Capella Query Workbench. This is a one-time step and is not something the provider or
+`EnsureCreatedAsync` does for you -- see xref:entity-framework-core-limitations.adoc[Limitations].
 
 == Create a Console application
 
@@ -61,14 +68,14 @@ dotnet new console
 +
 [source,console]
 ----
-dotnet install Couchbase.EntityFrameworkCore --version 1.0.0
+dotnet add package Couchbase.EntityFrameworkCore --version 2.0.0-beta.2
 ----
 
 * Add the dependency on `EFCore.NamingConventions`:
 +
 [source,console]
 ----
-dotnet install EFCore.NamingConventions --version 8.0.3
+dotnet add package EFCore.NamingConventions --version 10.0.1
 ----
 
 [NOTE]
@@ -92,7 +99,7 @@ public class BloggingContext : DbContext
 {
     public DbSet<Blog> Blogs { get; set; }
     public DbSet<Post> Posts { get; set; }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         var loggingFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -100,15 +107,15 @@ public class BloggingContext : DbContext
             new ClusterOptions()
                 .WithCredentials("USERNAME", "PASSWORD")
                 .WithConnectionString("couchbases://cb.xxxxxxxx.cloud.couchbase.com")
-                .WithLogging(loggingFactory), 
+                .WithLogging(loggingFactory),
             couchbaseDbContextOptions =>
             {
                 couchbaseDbContextOptions.Bucket = "Content";
                 couchbaseDbContextOptions.Scope = "Blogs";
             });
-            options.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
+        options.UseCamelCaseNamingConvention(); // Use EFCore.NamingConventions for JSON document casing
     }
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Blog>().ToCouchbaseCollection(this, "Blog");
@@ -189,7 +196,7 @@ await db.SaveChangesAsync();
 +
 [source,console]
 ----
-/source/couchbase-dotnet-ef/samples/CouchbaseGettingStarted/bin/Debug/net8.0/CouchbaseGettingStarted
+/source/couchbase-dotnet-ef/samples/CouchbaseGettingStarted/bin/Debug/net10.0/CouchbaseGettingStarted
 Inserting a new blog
 Querying for a blog
 Updating the blog and adding a post

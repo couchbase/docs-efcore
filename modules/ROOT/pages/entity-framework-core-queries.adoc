@@ -163,16 +163,19 @@ Other operators may or may not be supported in the 1.0 release.
 
 == SQL queries
 
-=== SqlRaw
-
-`DbContext.SqlRaw` is not implemented as of the EF Core Couchbase DB Provider 1.0 release because it depends on ADO.NET parameters which are minimally supported in the initial release.
-
-[NOTE] 
-`DbContext.FromSql` will throw a `NotImplementedException` in EF Core Couchbase DB Provider 1.0.
+[NOTE]
+Synchronous enumeration (`.ToList()`, `.First()`, etc.) of a `FromSqlRaw`/`FromSql` query that
+hasn't been composed with further LINQ operators (`Where`, `OrderBy`, ...) throws
+`NotImplementedException` -- this applies to both `FromSqlRaw` and the interpolated `FromSql`
+overload alike, not just one of them. The async form (`ToListAsync`/`FirstOrDefaultAsync`/etc.)
+works for both and is used throughout the examples below.
 
 === FromSqlRaw
 
-If you've decided you do want to dynamically construct your SQL, you'll have to use `DbContext.FromSqlRaw`, which allows interpolating variable data directly into the SQL string, instead of using a database parameter:
+`DbContext.FromSqlRaw` lets you write a raw {sqlpp} query directly, with parameters passed
+positionally (`{0}`, `{1}`, ...) rather than interpolated into the string -- this is the
+recommended way to include variable data in a raw query, since it goes through the database
+parameter mechanism instead of string concatenation:
 
 [source,csharp]
 ----
@@ -182,17 +185,47 @@ var person = await context.Set<Person>()
     .FirstOrDefaultAsync();
 ----
 
+`FromSqlRaw` supports multiple parameters and composes with `OrderBy`/paging like any other query source:
+
+[source,csharp]
+----
+const string sql = @"SELECT DISTINCT route.destinationairport
+    FROM `travel-sample`.`inventory`.`airport` AS airport
+    JOIN `travel-sample`.`inventory`.`route` AS route
+      ON route.sourceairport = airport.faa
+    WHERE LOWER(airport.faa) = {0}
+      AND route.stops = 0
+    ORDER BY route.destinationairport
+    LIMIT {1}
+    OFFSET {2}";
+
+var destinations = await context.Set<DestinationAirport>()
+    .FromSqlRaw(sql, airportCode, pageSize, skip)
+    .ToListAsync();
+----
+
+=== FromSql
+
+`FromSql` (the interpolated-string overload, `context.Blogs.FromSql($"...")`) works the same way
+as `FromSqlRaw` above, including the async-only caveat noted at the top of this section:
+
+[source,csharp]
+----
+var blogs = await context.Blogs
+    .FromSql($"SELECT `b`.* FROM `Content`.`Blogs`.`Blog` AS `b` WHERE META(`b`).id = \"1\"")
+    .ToListAsync();
+----
+
 === META Support
 
-The xref:server:n1ql:n1ql-language-reference/metafun.adoc#meta[META function] is supported in the EF Core Couchbase DB Provider version 1.0.
-Hhowever, lamda expression is not supported.
-This means you will need to use the `FromSqlRaw` method to execute the query.
+The xref:server:n1ql:n1ql-language-reference/metafun.adoc#meta[META function] (the document key)
+can be queried with either `FromSqlRaw` or the interpolated `FromSql` -- useful when you want to
+fetch by key through a raw query rather than `FindAsync`:
 
 [source,csharp]
 ----
 using (var context = new BloggingContext())
 {
-    await _couchbaseFixture.InitializeBloggingAsync();
     var statement = "SELECT `b`.* FROM `Content`.`Blogs`.`Blog` as `b` WHERE META().id = \"2\"";
     var blog = await context.Blogs.FromSqlRaw(statement).AsNoTracking().FirstOrDefaultAsync();
 
@@ -201,4 +234,5 @@ using (var context = new BloggingContext())
 ----
 
 [TIP]
-In addition to META, other {sqlpp} functions not yet supported in the EF Core Couchbase DB Provider may be executed in a similar way.
+In addition to META, other {sqlpp} functions not yet supported directly via LINQ in the EF Core
+Couchbase DB Provider may be executed in a similar way via `FromSqlRaw`/`FromSql`.
