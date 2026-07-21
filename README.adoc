@@ -1,9 +1,9 @@
 = Couchbase EFCore Provider
 
-This repository hosts the documentation source for the https://docs.couchbase.com/efcore/1.0/ROOT/overview.html[Couchbase EFCore Provider].
+This repository hosts the documentation source for the https://docs.couchbase.com/efcore/2.0/ROOT/overview.html[Couchbase EFCore Provider].
 
-This branch documents the 1.0 release of the Provider, which follows the 3.7 release of the .NET SDK,
-which in turn follows the https://docs.couchbase.com/dotnet-sdk/3.7/project-docs/compatibility.html#api-version[SDK 3.7 API].
+This branch documents the 2.0 release of the Provider, which follows the 3.9 release of the .NET SDK,
+which in turn follows the https://docs.couchbase.com/dotnet-sdk/3.7/project-docs/compatibility.html#api-version[SDK 3.9 API].
 
 
 == Contributing
@@ -23,5 +23,5 @@ If you are not sure the best way to update the docs, please raise a GitHub issue
 
 == Docs License
 
-©2025 Couchbase, Inc.
+©2026 Couchbase, Inc.
 This work is licensed under https://creativecommons.org/licenses/by-nc-sa/4.0/[CC BY-NC-SA 4.0].
