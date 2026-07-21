@@ -8,33 +8,50 @@ We recommend reviewing the known limitations to avoid potential issues and ensur
 
 == Unsupported EF Core Features
 
-* https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli[Migrations] -- The migrations feature in EF Core provides a way to incrementally update the database schema to keep it in sync with the application's data model while preserving existing data in the database. Use `context.Database.EnsureCreatedAsync()` instead.
-* https://learn.microsoft.com/en-us/ef/core/modeling/relational/tables#table-per-type-configuration[Table-per-type (TPT)] and https://learn.microsoft.com/en-us/ef/core/modeling/inheritance#table-per-concrete-type-configuration[table-per-concrete-type (TPC)] inheritance -- table-per-hierarchy (TPH) is supported.
+* https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli[Migrations] --
+The migrations feature in EF Core provides a way to incrementally update the database schema to keep it in sync with the application's data model while preserving existing data in the database. 
+Use `context.Database.EnsureCreatedAsync()` instead.
+
+* https://learn.microsoft.com/en-us/ef/core/modeling/relational/tables#table-per-type-configuration[Table-per-type (TPT)] and https://learn.microsoft.com/en-us/ef/core/modeling/inheritance#table-per-concrete-type-configuration[table-per-concrete-type (TPC)] inheritance --
+table-per-hierarchy (TPH) is supported.
+
 * Any features not explicitly mentioned in this documentation
 
 [NOTE]
-Eager loading/fetching (`Include`/`ThenInclude`, filtered includes, `AutoInclude`), value
-generation (server-side sequences and generated GUIDs), and owned-type table splitting are all
-supported as of `{provider_current_version}` -- see xref:entity-framework-core-modeling.adoc[Modeling]
-and xref:entity-framework-core-sequences.adoc[Sequences and generated values].
+Eager loading/fetching (`Include`/`ThenInclude`, filtered includes, `AutoInclude`), 
+value generation (server-side sequences and generated GUIDs), and owned-type table splitting are all supported as of `{provider_current_version}` --
+see xref:entity-framework-core-modeling.adoc[Modeling] and xref:entity-framework-core-sequences.adoc[Sequences and generated values].
 
 
 == Unsupported Couchbase Features
 
-* All queries use xref:dotnet-sdk:concept-docs:n1ql-query.adoc#index-consistency[NOT_BOUNDED] by default. This means that the query will not wait for the index to be updated before returning results. Set `RequestPlus` on the options builder for read-after-write consistency.
+* All queries use xref:dotnet-sdk:concept-docs:n1ql-query.adoc#index-consistency[NOT_BOUNDED] by default.
+This means that the query will not wait for the index to be updated before returning results. 
+Set `RequestPlus` on the options builder for read-after-write consistency.
+
 * Only xref:dotnet-sdk:howtos:n1ql-queries-with-sdk.adoc#query-options[default values] are used for all queries generated and executed against Couchbase.
+
 * Only xref:dotnet-sdk:ref:client-settings.adoc[default values] are used for K/V CRUD operations.
+
 * xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc[Compare and swap (CAS)] is not currently supported.
+
 * xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc#pessimistic-locking[Pessimistic locking] is not currently supported.
+
 * xref:dotnet-sdk:concept-docs:encryption.adoc[Field level encryption] is not currently supported.
+
 * xref:dotnet-sdk:concept-docs:xattr.adoc[XATTR and Virtual XATTR] are not currently supported.
+
 * xref:dotnet-sdk:concept-docs:subdocument-operations.adoc[Sub-Document] operations are not currently supported.
+
 * xref:dotnet-sdk:concept-docs:nonjson.adoc[Non-JSON Document types] are not currently supported.
 
+
 [NOTE]
-Multi-document transactions -- including transactions spanning more than one bucket on the same
-cluster, with a configurable xref:dotnet-sdk:concept-docs:durability-replication-failure-considerations.adoc#durability[durability level]
--- are supported as of `{provider_current_version}`. See xref:entity-framework-core-transactions.adoc[Transactions].
+Multi-document transactions -- 
+including transactions spanning more than one bucket on the same
+cluster, with a configurable xref:dotnet-sdk:concept-docs:durability-replication-failure-considerations.adoc#durability[durability level] -- 
+are supported as of `{provider_current_version}`.
+See xref:entity-framework-core-transactions.adoc[Transactions].
 
 
 == Only Async Queries Supported
@@ -42,28 +59,28 @@ cluster, with a configurable xref:dotnet-sdk:concept-docs:durability-replication
 Limitations on the Couchbase SDK mean that only async queries are supported.
 If a sync query is attempted, a `NotImplementedException` will be thrown with the following message:
 
-[quote, "NotImplementedException"]
+.`NotImplementedException`
 ----
-"Couchbase EF Core Database Provider does not support synchronous I/O.
-Make sure to use and correctly await only async methods when using Entity Framework
-Core to access Couchbase database. See Couchbase EF Core Database Provider
-documentation for more information."
+Couchbase EF Core Database Provider does not support synchronous I/O.
+Make sure to use and correctly await only async methods when using Entity Framework Core to access Couchbase database.
+See Couchbase EF Core Database Provider documentation for more information.
 ----
 
+
 All async queries are expected to be awaited. 
-Avoid using `Wait()` or `Result()` on async queries, as this is the https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/[sync-over-async anti-pattern]
-and leads to deadlocks and thread pool starvation.
+Avoid using `Wait()` or `Result()` on async queries, 
+as this is the https://learn.microsoft.com/en-us/azure/architecture/antipatterns/synchronous-io/[sync-over-async anti-pattern] and leads to deadlocks and thread pool starvation.
+
+
 
 == Nested Data Must Be Modeled as Owned Types
 
-The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational
-model. Plain CLR objects or collections nested on an entity that are **not** configured as an EF
-Core owned type (`OwnsOne`/`OwnsMany`) or as a related entity are ignored by EF Core -- they are
-not persisted or queried.
+The Couchbase EF Core Provider maps to Couchbase's JSON document model, which is not a relational model.
+Plain CLR objects or collections nested on an entity that are **not** configured as an EF Core owned type (`OwnsOne`/`OwnsMany`) or as a related entity are ignored by EF Core --
+they are not persisted or queried.
 
-`OwnsOne`/`OwnsMany` are the provider's primary way of modeling nested data, and are fully
-supported, including nesting to arbitrary depth. Consider a `Person` with a nested list of
-`Child` objects:
+`OwnsOne`/`OwnsMany` are the provider's primary way of modeling nested data, and are fully supported, including nesting to arbitrary depth. 
+Consider a `Person` with a nested list of `Child` objects:
 
 [source,csharp]
 ----
@@ -80,8 +97,8 @@ public class Child
 }
 ----
 
-Configure `Children` as an owned collection in `OnModelCreating` -- no separate collection, and no
-id on the child object, is required:
+Configure `Children` as an owned collection in `OnModelCreating` -- 
+no separate collection, and no id on the child object, is required:
 
 [source,csharp]
 ----
@@ -102,17 +119,17 @@ This stores `Children` as a genuinely nested JSON array on the same `Person` doc
 ----
 
 `OwnsOne` additionally supports reading (not just writing) genuinely nested JSON objects from
-documents that were not written by this provider -- for example Couchbase's own `travel-sample`
-dataset, where a `Hotel`'s `Geo` property is stored as a nested `{"geo": {...}}` object rather than
-flat fields. See xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types]
-for the full set of `OwnsOne`/`OwnsMany` examples, including field-backed access and value
-converters on owned properties.
+documents that were not written by this provider --
+for example Couchbase's own `travel-sample` dataset, 
+where a `Hotel`'s `Geo` property is stored as a nested `{"geo": {...}}` object rather than flat fields. 
+See xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types] for the full set of `OwnsOne`/`OwnsMany` examples, 
+including field-backed access and value converters on owned properties.
 
 [NOTE]
 Because Couchbase has no concept of foreign keys or cascading deletes, related *entities* (not
-owned types) -- e.g. a one-to-many relationship modeled as a separate `DbSet<TChild>` rather than
-an owned type -- are not automatically deleted when the parent is deleted unless
-`DeleteBehavior.Cascade` is configured, same as any EF Core provider.
+owned types) -- 
+for example a one-to-many relationship modeled as a separate `DbSet<TChild>` rather than an owned type -- 
+are not automatically deleted when the parent is deleted unless `DeleteBehavior.Cascade` is configured, same as any EF Core provider.
 
 
 == Avoid Dynamic or Object Type Properties
@@ -137,4 +154,5 @@ The LINQ expression 'DbSet<Customer>()
         .FirstOrDefault() == 0)' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.`
 ----
 
-Note that while the error message indicates that the query cannot re-rewritten using `AsEnumerable` or `ToList`, this is not a supported feature of the EF Core Couchbase DB Provider as it is sync-over-async.
+Note that while the error message indicates that the query cannot re-rewritten using `AsEnumerable` or `ToList`, 
+this is not a supported feature of the EF Core Couchbase DB Provider as it is sync-over-async.

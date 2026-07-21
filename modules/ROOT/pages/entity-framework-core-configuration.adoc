@@ -72,7 +72,8 @@ More details of the ClusterOptions class can be found in the xref:dotnet-sdk:ref
 [#ef-core-couchbase-db-provider-options]
 == EF Core Couchbase DB Provider options
 
-The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Couchbase.EntityFrameworkCore/Infrastructure/CouchbaseDbContextOptionsBuilder.cs[CouchbaseDbContextOptionsBuilder] handles configuration options specific to the provider, set in the `couchbaseDbContextOptions` callback passed to `UseCouchbase`/`AddCouchbase<TContext>`:
+The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Couchbase.EntityFrameworkCore/Infrastructure/CouchbaseDbContextOptionsBuilder.cs[CouchbaseDbContextOptionsBuilder] handles configuration options specific to the provider, 
+set in the `couchbaseDbContextOptions` callback passed to `UseCouchbase`/`AddCouchbase<TContext>`:
 
 .CouchbaseDbContextOptionsBuilder options
 [cols="1,1,3"]
@@ -109,20 +110,20 @@ The https://github.com/couchbaselabs/couchbase-efcore-provider/blob/main/src/Cou
 |===
 
 [NOTE]
-`FieldNamingPolicy` only controls casing for `OwnsMany` embedded collection fields -- it has no
-effect on top-level entity property casing in generated {sqlpp} queries. That's a separate concern
-handled by <<controlling-querying-casing,EFCore.NamingConventions>>. If you change one, make sure
-it still matches the other (and your actual document casing), or fields will silently come back
-with default values instead of an error.
+`FieldNamingPolicy` only controls casing for `OwnsMany` embedded collection fields -- 
+it has no
+effect on top-level entity property casing in generated {sqlpp} queries.
+That's a separate concern handled by <<controlling-querying-casing,EFCore.NamingConventions>>.
+If you change one, make sure it still matches the other (and your actual document casing), 
+or fields will silently come back with default values instead of an error.
 
 
 [#multiple-buckets-and-clusters]
 == Multiple buckets and clusters
 
-By default a `DbContext` targets a single configured bucket (and scope), and every entity is
-stored there. You can either use *one `DbContext` per bucket*, or map *individual entities to
-different buckets on the same cluster* within a single context (see
-<<one-context-spanning-multiple-buckets,One context spanning multiple buckets>> below).
+By default a `DbContext` targets a single configured bucket (and scope), and every entity is stored there. 
+You can either use *one `DbContext` per bucket*, or map *individual entities to different buckets on the same cluster* within a single context
+(see <<one-context-spanning-multiple-buckets,One context spanning multiple buckets>> below).
 
 For the context-per-bucket approach, each context is registered independently and targets its own
 bucket:
@@ -138,10 +139,10 @@ builder.Services.AddCouchbase<UsersContext>(clusterOptions,
 
 === Sharing a single cluster (recommended)
 
-Couchbase recommends a *single `Cluster` object per application*, cached and reused -- one
-cluster can open many buckets. To have your contexts share one cluster, register the Couchbase
-SDK in your application's DI container (via the
-https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html#connection-di[Couchbase DI library]),
+Couchbase recommends a *single `Cluster` object per application*, cached and reused -- 
+one cluster can open many buckets. 
+To have your contexts share one cluster, register the Couchbase SDK in your application's DI container 
+(via the https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html#connection-di[Couchbase DI library]),
 and the provider will reuse it for every context bound to it:
 
 [source,csharp]
@@ -158,15 +159,15 @@ builder.Services.AddCouchbase<OrdersContext>(clusterOptions, o => { o.Bucket = "
 builder.Services.AddCouchbase<UsersContext>(clusterOptions,  o => { o.Bucket = "users";  o.Scope = "identity"; });
 ----
 
-If no cluster is registered in application DI, each context creates and owns its own cluster
-(the original behavior). Cluster sharing only applies when contexts are registered through
-`AddCouchbase<TContext>` -- the application must register the cluster in DI for it to be shared.
+If no cluster is registered in application DI, each context creates and owns its own cluster (the original behavior).
+Cluster sharing only applies when contexts are registered through `AddCouchbase<TContext>` -- 
+the application must register the cluster in DI for it to be shared.
 
 [#multiple-clusters]
 === Multiple clusters
 
-When an application must talk to *more than one physical Couchbase Server cluster*, register a
-*keyed* cluster per server and point each context at the right one with `ServiceKey`:
+When an application must talk to *more than one physical Couchbase Server cluster*,
+register a *keyed* cluster per server and point each context at the right one with `ServiceKey`:
 
 [source,csharp]
 ----
@@ -187,15 +188,14 @@ builder.Services.AddCouchbase<WestContext>(westClusterOptions,
     o => { o.ServiceKey = "west"; o.Bucket = "orders"; o.Scope = "sales"; });
 ----
 
-`ServiceKey` selects which keyed cluster a context binds to. If a `ServiceKey` is set but no
-matching keyed cluster was registered, configuration fails with a clear error.
+`ServiceKey` selects which keyed cluster a context binds to. 
+If a `ServiceKey` is set but no matching keyed cluster was registered, configuration fails with a clear error.
 
 [#one-context-spanning-multiple-buckets]
 === One context spanning multiple buckets
 
-A single `DbContext` can map different entities to different buckets, as long as those buckets
-live on the *same cluster* (same connection string). Give an entity an explicit keyspace with
-the three-argument `ToCouchbaseCollection(bucket, scope, collection)`:
+A single `DbContext` can map different entities to different buckets, as long as those buckets live on the *same cluster* (same connection string). 
+Give an entity an explicit keyspace with the three-argument `ToCouchbaseCollection(bucket, scope, collection)`:
 
 [source,csharp]
 ----
@@ -218,17 +218,18 @@ Or with the attribute form:
 public class Customer { /* ... */ }
 ----
 
-Reads, `Find`, queries, and `SaveChanges` all resolve each entity's own bucket automatically, and
-`EnsureCreated` creates the scopes/collections in each bucket (you must still create a query index
-on each collection yourself -- see xref:entity-framework-core-limitations.adoc[Limitations]). {sqlpp}
-queries and multi-document transactions work across these buckets because they share one cluster
--- see xref:entity-framework-core-transactions.adoc[Transactions] for the full cross-bucket
+Reads, `Find`, queries, and `SaveChanges` all resolve each entity's own bucket automatically, 
+and `EnsureCreated` creates the scopes/collections in each bucket (you must still create a query index on each collection yourself -- 
+see xref:entity-framework-core-limitations.adoc[Limitations]). 
+{sqlpp} queries and multi-document transactions work across these buckets because they share one cluster --
+see xref:entity-framework-core-transactions.adoc[Transactions] for the full cross-bucket
 commit/rollback guarantee and example.
 
 [NOTE]
-Buckets mapped within one context must be on the *same* physical cluster. To reach buckets on
-*different* clusters, use a separate context per cluster with `ServiceKey` (above) -- a single
-query or transaction cannot span clusters. See xref:entity-framework-core-limitations.adoc[Limitations].
+Buckets mapped within one context must be on the *same* physical cluster.
+To reach buckets on *different* clusters, use a separate context per cluster with `ServiceKey` (above) -- 
+a single query or transaction cannot span clusters. 
+See xref:entity-framework-core-limitations.adoc[Limitations].
 
 
 == Controlling JSON casing
@@ -269,9 +270,8 @@ Of interest is the section on link:++https://github.com/efcore/EFCore.NamingConv
 [IMPORTANT]
 The casing of the queries that EF Core generates much match the casing of the JSON stored in Couchbase. The reason is because JSON is case sensitive and if they do not match, the queries will not return the expected results.
 
-[NOTE]
-This is a separate mechanism from the `FieldNamingPolicy` option (see
-<<ef-core-couchbase-db-provider-options>>) -- `EFCore.NamingConventions` governs top-level entity
-property casing in generated {sqlpp} queries, while `FieldNamingPolicy` governs field casing
-inside `OwnsMany` embedded collections only. Keep both consistent with your actual document
-casing.
+// [NOTE]
+This is a separate mechanism from the `FieldNamingPolicy` option (see <<ef-core-couchbase-db-provider-options>>) --
+`EFCore.NamingConventions` governs top-level entity property casing in generated {sqlpp} queries,
+while `FieldNamingPolicy` governs field casing inside `OwnsMany` embedded collections only.
+Keep both consistent with your actual document casing.

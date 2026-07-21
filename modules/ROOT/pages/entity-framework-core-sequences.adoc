@@ -7,14 +7,13 @@
 {description}
 
 
-Beyond client-generated GUIDs, the provider supports server-side Couchbase sequences for
-integer/long primary keys, configured either via the fluent `UseSequence` API or a
-`[CouchbaseSequence]` attribute.
+Beyond client-generated GUIDs, the provider supports server-side Couchbase sequences for integer/long primary keys,
+configured either via the fluent `UseSequence` API or a `[CouchbaseSequence]` attribute.
 
 
 == UseSequence (fluent API)
 
-The simplest form looks up a sequence of the given name in the bucket/scope the `DbContext` is
+The simplest form looks up a sequence of the given name in the bucket or scope the `DbContext` is
 already configured for:
 
 [source,csharp]
@@ -33,8 +32,8 @@ modelBuilder.Entity<Order>()
     .UseSequence("analytics", "order_seq");
 ----
 
-To control the sequence's starting value and increment (used when the sequence is auto-created --
-see below), pass `CouchbaseSequenceOptions`:
+To control the sequence's starting value and increment
+(used when the sequence is auto-created -- see below), pass `CouchbaseSequenceOptions`:
 
 [source,csharp]
 ----
@@ -47,15 +46,15 @@ modelBuilder.Entity<Order>()
     });
 ----
 
-`CouchbaseSequenceOptions` also supports `MaxValue`, `MinValue`, `Cycle` (restart when the limit
-is reached; defaults to `false`), and `CacheSize` -- these map directly to {sqlpp}'s `CREATE
-SEQUENCE` options.
+`CouchbaseSequenceOptions` also supports `MaxValue`, `MinValue`, `Cycle`
+(restart when the limit is reached; defaults to `false`), and `CacheSize` --
+these map directly to {sqlpp}'s `CREATE SEQUENCE` options.
 
 
 == [CouchbaseSequence] attribute
 
-The same configuration is available as an attribute directly on the property, which some prefer
-for keeping ID-generation strategy visible on the model class itself:
+The same configuration is available as an attribute directly on the property,
+which some prefer for keeping ID-generation strategy visible on the model class itself:
 
 [source,csharp]
 ----
@@ -68,8 +67,7 @@ public class Order
 }
 ----
 
-The attribute also has a `(scope, sequenceName)` constructor, and `StartWith`, `IncrementBy`,
-`Cycle`, and `AutoCreate` properties mirroring `CouchbaseSequenceOptions`:
+The attribute also has a `(scope, sequenceName)` constructor, and `StartWith`, `IncrementBy`, `Cycle`, and `AutoCreate` properties mirroring `CouchbaseSequenceOptions`:
 
 [source,csharp]
 ----
@@ -83,26 +81,23 @@ public class Order
 
 == Auto-creation via EnsureCreatedAsync
 
-By default (`AutoCreate = true`), calling `context.Database.EnsureCreatedAsync()` creates any
-sequence configured on the DbContext-level scope that doesn't already exist, using the
-configured `StartWith`/`IncrementBy`/etc. -- equivalent to running:
+By default (`AutoCreate = true`), calling `context.Database.EnsureCreatedAsync()` creates any sequence configured on the DbContext-level scope that doesn't already exist,
+using the configured `StartWith`/`IncrementBy`/etc. -- equivalent to running:
 
-[source,csharp]
+[source,sqlpp]
 ----
 CREATE SEQUENCE IF NOT EXISTS `bucket`.`scope`.`order_seq` START WITH 1000 INCREMENT BY 10 NO CYCLE
 ----
 
-Sequences targeting a *non-default scope* (via `UseSequence(scope, ...)` or the attribute's
-`Scope` property) are *not* auto-created, since that scope might not exist yet -- a warning is
-logged instead. Create the scope and sequence yourself in that case, or set `AutoCreate = false`
-if you're managing the sequence's lifecycle entirely outside of `EnsureCreatedAsync`.
+Sequences targeting a *non-default scope* (via `UseSequence(scope, ...)` or the attribute's `Scope` property) are *not* auto-created,
+since that scope might not exist yet -- a warning is logged instead.
+Create the scope and sequence yourself in that case, or set `AutoCreate = false` if you're managing the sequence's lifecycle entirely outside of `EnsureCreatedAsync`.
 
 
 == Generated GUIDs
 
-For distributed-ID scenarios where a server round-trip per insert isn't worth it, `UseGuid()`
-and `UseGuidString()` generate a value client-side (via EF Core's built-in generator) instead of
-using a server-side sequence:
+For distributed-ID scenarios where a server round-trip per insert isn't worth it,
+`UseGuid()` and `UseGuidString()` generate a value client-side (via EF Core's built-in generator) instead of using a server-side sequence:
 
 [source,csharp]
 ----
@@ -111,9 +106,8 @@ modelBuilder.Entity<Order>()
     .UseGuid();
 ----
 
-For a `string`-typed key that should hold a GUID's text representation, `UseGuidString(format)`
-generates a new GUID and formats it as a string -- `format` accepts the standard .NET GUID format
-specifiers `"D"` (default, hyphenated), `"N"` (no hyphens), `"B"` (braces), or `"P"` (parentheses):
+For a `string`-typed key that should hold a GUID's text representation, `UseGuidString(format)` generates a new GUID and formats it as a string --
+`format` accepts the standard .NET GUID format specifiers `"D"` (default, hyphenated), `"N"` (no hyphens), `"B"` (braces), or `"P"` (parentheses):
 
 [source,csharp]
 ----
@@ -122,6 +116,5 @@ modelBuilder.Entity<Order>()
     .UseGuidString("N"); // No hyphens
 ----
 
-`UseGuid()` requires the property to actually be typed `Guid` -- calling it on a `string` property
-throws `InvalidOperationException` at model-build time with a message pointing you to
-`UseGuidString()` instead.
+`UseGuid()` requires the property to actually be typed `Guid` --
+calling it on a `string` property throws `InvalidOperationException` at model-build time with a message pointing you to `UseGuidString()` instead.

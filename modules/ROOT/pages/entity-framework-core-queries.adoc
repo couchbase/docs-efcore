@@ -68,7 +68,8 @@ var session = await context.Sessions.FirstAsync(x => x.SessionId == 2);
 
 == Pagination
 
-Pagination refers to retrieving results in pages, rather than all at once; this is typically done for large resultsets, where a user interface is displayed, allowing users to navigate through pages of the results.
+Pagination refers to retrieving results in pages, rather than all at once; this is typically done for large resultsets,
+where a user interface is displayed, allowing users to navigate through pages of the results.
 
 A common way to implement pagination with databases is to use the Skip and Take LINQ operators (OFFSET and LIMIT in SQL++). 
 Given a page size of 10 results, the third page can be fetched with EF Core as follows:
@@ -99,7 +100,8 @@ var query = from s in _context.Students
 
 == First Async
 
-https://learn.microsoft.com/en-us/ef/core/change-tracking/entity-entries#find-and-findasync[FindAsync] is a useful API for getting an entity by its primary key, and avoiding a database roundtrip when the entity has already been loaded and is tracked by the context:
+https://learn.microsoft.com/en-us/ef/core/change-tracking/entity-entries#find-and-findasync[FindAsync] is a useful API for getting an entity by its primary key,
+and avoiding a database roundtrip when the entity has already been loaded and is tracked by the context:
 
 [source,csharp]
 ----
@@ -164,18 +166,16 @@ Other operators may or may not be supported in the 1.0 release.
 == SQL queries
 
 [NOTE]
-Synchronous enumeration (`.ToList()`, `.First()`, etc.) of a `FromSqlRaw`/`FromSql` query that
-hasn't been composed with further LINQ operators (`Where`, `OrderBy`, ...) throws
-`NotImplementedException` -- this applies to both `FromSqlRaw` and the interpolated `FromSql`
-overload alike, not just one of them. The async form (`ToListAsync`/`FirstOrDefaultAsync`/etc.)
-works for both and is used throughout the examples below.
+Synchronous enumeration (`.ToList()`, `.First()`, etc.) of a `FromSqlRaw`/`FromSql` query that hasn't been composed with further LINQ operators (`Where`, `OrderBy`, ...) throws `NotImplementedException` --
+this applies to both `FromSqlRaw` and the interpolated `FromSql` overload alike, not just one of them.
+The async form (`ToListAsync`/`FirstOrDefaultAsync`/etc.) works for both and is used throughout the examples below.
 
 === FromSqlRaw
 
-`DbContext.FromSqlRaw` lets you write a raw {sqlpp} query directly, with parameters passed
-positionally (`{0}`, `{1}`, ...) rather than interpolated into the string -- this is the
-recommended way to include variable data in a raw query, since it goes through the database
-parameter mechanism instead of string concatenation:
+`DbContext.FromSqlRaw` lets you write a raw {sqlpp} query directly,
+with parameters passed positionally (`{0}`, `{1}`, ...) rather than interpolated into the string --
+this is the recommended way to include variable data in a raw query,
+since it goes through the database parameter mechanism instead of string concatenation:
 
 [source,csharp]
 ----
@@ -206,8 +206,8 @@ var destinations = await context.Set<DestinationAirport>()
 
 === FromSql
 
-`FromSql` (the interpolated-string overload, `context.Blogs.FromSql($"...")`) works the same way
-as `FromSqlRaw` above, including the async-only caveat noted at the top of this section:
+`FromSql` (the interpolated-string overload, `context.Blogs.FromSql($"...")`) works the same way as `FromSqlRaw` above,
+including the async-only caveat noted at the top of this section:
 
 [source,csharp]
 ----
@@ -218,9 +218,8 @@ var blogs = await context.Blogs
 
 === META Support
 
-The xref:server:n1ql:n1ql-language-reference/metafun.adoc#meta[META function] (the document key)
-can be queried with either `FromSqlRaw` or the interpolated `FromSql` -- useful when you want to
-fetch by key through a raw query rather than `FindAsync`:
+The xref:server:n1ql:n1ql-language-reference/metafun.adoc#meta[META function] (the document key) can be queried with either `FromSqlRaw` or the interpolated `FromSql` -- 
+useful when you want to fetch by key through a raw query rather than `FindAsync`:
 
 [source,csharp]
 ----
@@ -234,5 +233,4 @@ using (var context = new BloggingContext())
 ----
 
 [TIP]
-In addition to META, other {sqlpp} functions not yet supported directly via LINQ in the EF Core
-Couchbase DB Provider may be executed in a similar way via `FromSqlRaw`/`FromSql`.
+In addition to META, other {sqlpp} functions not yet supported directly via LINQ in the EF Core Couchbase DB Provider may be executed in a similar way via `FromSqlRaw` / `FromSql`.

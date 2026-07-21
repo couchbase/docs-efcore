@@ -7,10 +7,10 @@
 {description}
 
 
-The provider supports real Couchbase multi-document transactions through
-`DatabaseFacade.BeginCouchbaseTransactionAsync`/`BeginCouchbaseTransaction`, giving a group of
-`SaveChanges` calls genuine all-or-nothing semantics -- including across two buckets on the same
-cluster (see xref:entity-framework-core-configuration.adoc#one-context-spanning-multiple-buckets[One context spanning multiple buckets]).
+The provider supports real Couchbase multi-document transactions through `DatabaseFacade.BeginCouchbaseTransactionAsync`/`BeginCouchbaseTransaction`,
+giving a group of `SaveChanges` calls genuine all-or-nothing semantics --
+including across two buckets on the same cluster
+(see xref:entity-framework-core-configuration.adoc#one-context-spanning-multiple-buckets[One context spanning multiple buckets]).
 
 
 == Basic usage
@@ -25,26 +25,25 @@ await context.SaveChangesAsync();
 await transaction.CommitAsync();
 ----
 
-If you don't call `CommitAsync()` before the transaction is disposed (or you call
-`RollbackAsync()` explicitly), none of the writes made through `SaveChangesAsync()` while the
-transaction was open are persisted.
+If you don't call `CommitAsync()` before the transaction is disposed (or you call `RollbackAsync()` explicitly),
+none of the writes made through `SaveChangesAsync()` while the transaction was open are persisted.
 
 [NOTE]
 A read (e.g. `FindAsync`) issued immediately after `CommitAsync()` can momentarily still miss the
-just-committed document -- KV reads aren't governed by the `RequestPlus` query-scan-consistency
-option (that only affects N1QL queries), so there's a brief window before a point read reflects the
-commit. If you need to read back a value you just wrote inside a transaction, poll briefly or
-re-query rather than assuming an immediate KV read is guaranteed consistent.
+just-committed document --
+KV reads aren't governed by the `RequestPlus` query-scan-consistency option (that only affects {sqlpp} queries),
+so there's a brief window before a point read reflects the commit.
+If you need to read back a value you just wrote inside a transaction,
+poll briefly or re-query rather than assuming an immediate KV read is guaranteed consistent.
 
 
 == Durability level
 
-`BeginCouchbaseTransactionAsync` requires a `Couchbase.KeyValue.DurabilityLevel`, which controls
-how durably the transaction's writes must be persisted across the cluster before `CommitAsync()`
-returns:
+`BeginCouchbaseTransactionAsync` requires a `Couchbase.KeyValue.DurabilityLevel`,
+which controls how durably the transaction's writes must be persisted across the cluster before `CommitAsync()` returns:
 
 .DurabilityLevel values
-[cols="1,2"]
+[cols="2,5"]
 |===
 | `DurabilityLevel` | Meaning
 
@@ -61,9 +60,8 @@ returns:
 | Persisted to disk on a majority of replicas.
 |===
 
-An `IsolationLevel` overload also exists
-(`BeginCouchbaseTransactionAsync(durabilityLevel, isolationLevel, cancellationToken)`); it's
-informational only for Couchbase and doesn't change transaction behavior.
+An `IsolationLevel` overload also exists (`BeginCouchbaseTransactionAsync(durabilityLevel, isolationLevel, cancellationToken)`);
+it's informational only for Couchbase, and doesn't change transaction behavior.
 
 
 == Cross-bucket transactions
@@ -97,11 +95,12 @@ await transaction.CommitAsync();   // both buckets commit together, or neither d
 ----
 
 If the commit fails partway through -- for example, one bucket's write conflicts with an
-already-existing document -- `CommitAsync()` throws
-`Couchbase.Client.Transactions.Error.TransactionFailedException`, and the write already staged to
-the *other* bucket is rolled back too. Both buckets must share one physical cluster; a
-transaction cannot span buckets on different clusters (use `ServiceKey` with a separate context
-per cluster instead -- see xref:entity-framework-core-configuration.adoc#multiple-clusters[Multiple clusters]).
+already-existing document --
+`CommitAsync()` throws `Couchbase.Client.Transactions.Error.TransactionFailedException`,
+and the write already staged to the *other* bucket is rolled back too.
+Both buckets must share one physical cluster;
+a transaction cannot span buckets on different clusters (use `ServiceKey` with a separate context per cluster instead --
+see xref:entity-framework-core-configuration.adoc#multiple-clusters[Multiple clusters]).
 
 
 == Other transaction helpers

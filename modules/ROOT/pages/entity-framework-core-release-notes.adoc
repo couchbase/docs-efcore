@@ -16,25 +16,43 @@ The provider is maintained as part of the https://github.com/couchbaselabs/couch
 == Couchbase EF Core 2.0 Releases
 
 We always recommend using the latest version of the Couchbase EF Core Provider -- it contains all of the latest security patches and support for new and upcoming features.
-The 2.0 line is the first fully functional release of the provider; 1.0 was a deliberately limited
-release, and users are expected to move to 2.0. These are prereleases -- APIs may still change
-before GA; any changes to expected behavior are noted in the release notes that follow.
+// All patch releases for each dot minor release should be API compatible, and safe to upgrade;
+any changes to expected behavior are noted in the release notes that follow.
+
+
+The 2.0 line is the first fully functional release of the provider;
+1.0 was a deliberately limited release, and users are expected to move to 2.0. 
+
+
+These are prereleases -- APIs may still change before GA;
+any changes to expected behavior are noted in the release notes that follow.
+
+
 
 
 === Version 2.0.0-beta.2 (15 July 2026)
 
 Version https://jira.issues.couchbase.com/issues/?jql=project%20%3D%20%22CBEF%22%20AND%20fixVersion%20%3D%20%222.0.0-beta.2%22[2.0.0-beta.2] adds:
 
-* *Multiple buckets and clusters* -- one `DbContext` per bucket, with cluster-sharing across contexts registered via `AddCouchbase<TContext>`, or a keyed cluster per physical server (`AddKeyedCouchbase`) selected per context with `ServiceKey`. See xref:entity-framework-core-configuration.adoc#multiple-buckets-and-clusters[Multiple buckets and clusters].
-* *One `DbContext` spanning multiple buckets* on the same cluster, including multi-document transactions across those buckets with all-or-nothing commit/rollback semantics. See xref:entity-framework-core-configuration.adoc#one-context-spanning-multiple-buckets[One context spanning multiple buckets] and xref:entity-framework-core-transactions.adoc[Transactions].
-* *`OwnsOne` can now read genuinely nested JSON objects*, not just the flat `owner_property` columns from EF Core's standard relational table-splitting -- see xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types].
-* *`CancellationToken` support on the write path* -- tokens passed to `SaveChangesAsync` now flow through to the underlying Couchbase KV/query calls and are honored for real cancellation.
+* *Multiple buckets and clusters* --
+one `DbContext` per bucket, with cluster-sharing across contexts registered via `AddCouchbase<TContext>`, or a keyed cluster per physical server (`AddKeyedCouchbase`) selected per context with `ServiceKey`.
+See xref:entity-framework-core-configuration.adoc#multiple-buckets-and-clusters[Multiple buckets and clusters].
+
+* *One `DbContext` spanning multiple buckets* on the same cluster, including multi-document transactions across those buckets with all-or-nothing commit/rollback semantics.
+See xref:entity-framework-core-configuration.adoc#one-context-spanning-multiple-buckets[One context spanning multiple buckets] and xref:entity-framework-core-transactions.adoc[Transactions].
+
+* *`OwnsOne` can now read genuinely nested JSON objects*,
+not just the flat `owner_property` columns from EF Core's standard relational table-splitting -- see xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types].
+
+* *`CancellationToken` support on the write path* --
+tokens passed to `SaveChangesAsync` now flow through to the underlying Couchbase KV & Query calls and are honored for real cancellation.
 
 Also: the `SaveChangesAsync` write path is now parallelized (bounded concurrency) rather than
-sequential, significantly reducing write latency for multi-entity change sets; whole numbers
-formatted as JSON decimals (e.g. `"rating": 4.0`) in `int`/`long` properties no longer throw
-`FormatException`; and `OwnsMany` items are no longer spuriously re-written on every
-`SaveChangesAsync` when nothing actually changed.
+sequential,
+significantly reducing write latency for multi-entity change sets;
+whole numbers formatted as JSON decimals (e.g. `"rating": 4.0`) in `int`/`long` properties no longer throw `FormatException`;
+and `OwnsMany` items are no longer spuriously re-written on every `SaveChangesAsync` when nothing actually changed.
+
 
 xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference] |
 https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/2.0.0-beta.2[NUGET]
@@ -44,22 +62,38 @@ https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/2.0.0-beta.2[NUGET]
 
 Version https://jira.issues.couchbase.com/issues/?jql=project%20%3D%20%22CBEF%22%20AND%20fixVersion%20%3D%20%222.0.0-beta.1%22[2.0.0-beta.1] targets *.NET 10* (`net10.0`) and adds:
 
-* *Eager loading* via `Include`/`ThenInclude` for foreign-key navigations, plus `AutoInclude` and `IgnoreAutoIncludes` support, and *filtered includes* (e.g. `Include(b => b.Posts.Where(...))`). See xref:entity-framework-core-modeling.adoc#eager-loading[Eager loading].
-* *Owned types* -- `OwnsOne` and `OwnsMany`, including nested owned types at arbitrary depth, embedded in the owner's document. Read and write paths both supported. See xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types].
-* *Many-to-many* -- both the explicit join-entity pattern and transparent skip navigations (`HasMany().WithMany()`). See xref:entity-framework-core-modeling.adoc#many-to-many[Many-to-many].
-* *Inheritance (TPH)* -- table-per-hierarchy with a discriminator: `OfType<TDerived>()`, `Include` on navigations declared on a derived type, owned types on a derived type, and `Find`/`FindAsync` resolution.
+* *Eager loading* via `Include`/`ThenInclude` for foreign-key navigations, plus `AutoInclude` and `IgnoreAutoIncludes` support, and *filtered includes* (e.g. `Include(b => b.Posts.Where(...))`).
+See xref:entity-framework-core-modeling.adoc#eager-loading[Eager loading].
+
+* *Owned types* -- 
+`OwnsOne` and `OwnsMany`, including nested owned types at arbitrary depth, embedded in the owner's document.
+Read and write paths both supported.
+See xref:entity-framework-core-modeling.adoc#owned-entity-types[Owned Entity Types].
+
+* *Many-to-many* --
+both the explicit join-entity pattern and transparent skip navigations (`HasMany().WithMany()`). 
+See xref:entity-framework-core-modeling.adoc#many-to-many[Many-to-many].
+
+* *Inheritance (TPH)* --
+table-per-hierarchy with a discriminator: `OfType<TDerived>()`, `Include` on navigations declared on a derived type, owned types on a derived type, and `Find`/`FindAsync` resolution.
+
 * *Value converters* on non-owned entities (`HasConversion`, including `ConvertsNulls`).
-* *Query scan consistency* option -- defaults to `NotBounded`; set `RequestPlus` via the options builder for read-after-write consistency on queries.
+
+* *Query scan consistency* option --
+defaults to `NotBounded`; set `RequestPlus` via the options builder for read-after-write consistency on queries.
+
 * *ADO.NET data reader* (`CouchbaseDbDataReader`) underpinning the query pipeline, including `FromSql` support.
 
 Also fixed: `AVG` aggregate translation in the {sqlpp} generator.
 
 Known limitations at this release: EF Core Migrations are not supported (use `EnsureCreatedAsync`);
-synchronous query/save APIs are not supported; TPT/TPC inheritance is not supported; nested data
-must be modeled as owned types. See xref:entity-framework-core-limitations.adoc[Limitations].
+synchronous query/save APIs are not supported; TPT/TPC inheritance is not supported; nested data must be modeled as owned types.
+See xref:entity-framework-core-limitations.adoc[Limitations].
+
 
 xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference] |
 https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/2.0.0-beta.1[NUGET]
+
 
 
 [#v1-releases]

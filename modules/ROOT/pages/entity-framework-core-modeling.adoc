@@ -58,9 +58,9 @@ image::img_11.png
 
 === Using the [CouchbaseKeyspace] attribute
 
-The same mappings shown above with `ToCouchbaseCollection` are available as a `[CouchbaseKeyspace]`
-attribute directly on the entity class, for those who prefer keeping the keyspace visible on the
-model itself. It has three constructors, matching the three `ToCouchbaseCollection` overloads:
+The same mappings shown above with `ToCouchbaseCollection` are available as a `[CouchbaseKeyspace]` attribute directly on the entity class,
+for those who prefer keeping the keyspace visible on the model itself.
+It has three constructors, matching the three `ToCouchbaseCollection` overloads:
 
 [source,csharp]
 ----
@@ -217,10 +217,9 @@ Please refer to the https://learn.microsoft.com/en-us/ef/core/modeling/entity-pr
 
 == Generated Values
 
-In addition to standard EF Core value generation, the provider supports server-side Couchbase
-sequences and client-side GUID generation -- see xref:entity-framework-core-sequences.adoc[Sequences and generated values]
-for `UseSequence`, `[CouchbaseSequence]`, `UseGuid()`, and `UseGuidString()`. For everything else,
-refer to the https://learn.microsoft.com/en-us/ef/core/modeling/generated-properties?tabs=data-annotations[EF Core documentation].
+In addition to standard EF Core value generation, the provider supports server-side Couchbase sequences and client-side GUID generation --
+see xref:entity-framework-core-sequences.adoc[Sequences and generated values] for `UseSequence`, `[CouchbaseSequence]`, `UseGuid()`, and `UseGuidString()`.
+For everything else, refer to the https://learn.microsoft.com/en-us/ef/core/modeling/generated-properties?tabs=data-annotations[EF Core documentation].
 
 
 == Relationships
@@ -232,8 +231,7 @@ Please refer to the https://learn.microsoft.com/en-us/ef/core/modeling/relations
 [#eager-loading]
 == Eager loading
 
-`Include`/`ThenInclude` are fully supported for foreign-key navigations, including chains of any
-length:
+`Include`/`ThenInclude` are fully supported for foreign-key navigations, including chains of any length:
 
 [source,csharp]
 ----
@@ -253,9 +251,8 @@ var blog = await context.Blogs
     .FirstAsync();
 ----
 
-*`AutoInclude`* marks a navigation (configured once, in `OnModelCreating`) to be included
-automatically on every query against that entity, without an explicit `Include` call; use
-`IgnoreAutoIncludes()` on a specific query to opt back out:
+*`AutoInclude`* marks a navigation (configured once, in `OnModelCreating`) to be included automatically on every query against that entity, without an explicit `Include` call; 
+use `IgnoreAutoIncludes()` on a specific query to opt back out:
 
 [source,csharp]
 ----
@@ -268,19 +265,17 @@ var person = await context.People.FirstAsync();
 var personWithoutPhoto = await context.People.IgnoreAutoIncludes().FirstAsync();
 ----
 
-`Include`/`ThenInclude`/filtered includes/`AutoInclude` all work the same way on entities involved
-in <<Inheritance>> (including navigations declared only on a derived type) and on many-to-many
-<<many-to-many,skip navigations>> below.
+`Include`/`ThenInclude`/filtered includes/`AutoInclude` all work the same way on entities involved in <<Inheritance>> (including navigations declared only on a derived type)
+and on many-to-many <<many-to-many,skip navigations>> below.
 
 
 [#many-to-many]
 == Many-to-many
 
-Both of EF Core's many-to-many patterns are supported: an explicit join entity, and transparent
-skip navigations via `HasMany().WithMany()`.
+Both of EF Core's many-to-many patterns are supported: an explicit join entity, and transparent skip navigations via `HasMany().WithMany()`.
 
-*Explicit join entity* -- you model the join collection/entity yourself (e.g. `PostTag`) and
-`Include` through it in two hops:
+*Explicit join entity* -- 
+you model the join collection/entity yourself (e.g. `PostTag`) and `Include` through it in two hops:
 
 [source,csharp]
 ----
@@ -290,9 +285,9 @@ var post = await context.Posts
     .FirstAsync();
 ----
 
-*Transparent skip navigations* -- EF Core manages a hidden join collection for you; configure it
-once with `HasMany`/`WithMany`/`UsingEntity`, and `Include` the navigation directly with no join
-entity in your model at all:
+*Transparent skip navigations* -- 
+EF Core manages a hidden join collection for you; configure it once with `HasMany`/`WithMany`/`UsingEntity`, 
+and `Include` the navigation directly with no join entity in your model at all:
 
 [source,csharp]
 ----
@@ -306,17 +301,15 @@ var post = await context.Posts
     .FirstAsync();
 ----
 
-Adding/removing an entity from a skip-navigation collection and calling `SaveChangesAsync()`
-writes/deletes the corresponding hidden join document, the same as any other tracked change.
+Adding/removing an entity from a skip-navigation collection and calling `SaveChangesAsync()` writes/deletes the corresponding hidden join document, the same as any other tracked change.
 
 
 [#owned-entity-types]
 == Owned Entity Types
 
-Owned types (`OwnsOne` for a single embedded object, `OwnsMany` for an embedded array) are the
-provider's primary way of modeling nested data -- see xref:entity-framework-core-limitations.adoc[Limitations]
-for why (document-database nested data generally needs to be an owned type rather than a
-separate, independently-queryable entity).
+Owned types (`OwnsOne` for a single embedded object, `OwnsMany` for an embedded array) are the provider's primary way of modeling nested data --
+see xref:entity-framework-core-limitations.adoc[Limitations] for why 
+(document-database nested data generally needs to be an owned type rather than a separate, independently-queryable entity).
 
 === OwnsOne
 
@@ -325,26 +318,27 @@ separate, independently-queryable entity).
 modelBuilder.Entity<Customer>().OwnsOne(c => c.Address);
 ----
 
-By default, `OwnsOne` uses EF Core's standard relational table-splitting -- the owned type's
-scalar properties round-trip as flat `owner_property`-style fields in the same document (e.g.
-`Address.Street` becomes an `address_Street` field). This works for any document this provider
-itself writes.
+By default, `OwnsOne` uses EF Core's standard relational table-splitting --
+the owned type's scalar properties round-trip as flat `owner_property`-style fields in the same document 
+(e.g. `Address.Street` becomes an `address_Street` field). 
+This works for any document this provider itself writes.
 
 The provider *additionally* reads a genuinely nested JSON object for the same navigation, when
-one is present -- useful for documents from elsewhere that store the owned data as a real nested
-object rather than flat fields (Couchbase's own `travel-sample` dataset is a good example:
-`Hotel.Geo` is stored as `{"geo": {"lat": ..., "lon": ..., "accuracy": ...}}`, not flat
-`geo_Lat`/`geo_Lon`/`geo_Accuracy` fields):
+one is present -- 
+useful for documents from elsewhere that store the owned data as a real nested object rather than flat fields
+(Couchbase's own `travel-sample` dataset is a good example:
+`Hotel.Geo` is stored as `{"geo": {"lat": ..., "lon": ..., "accuracy": ...}}`,
+ not flat `geo_Lat`/`geo_Lon`/`geo_Accuracy` fields):
 
 [source,csharp]
 ----
 modelBuilder.Entity<Hotel>().OwnsOne(h => h.Geo);
 ----
 
-This is purely additive -- if the nested object is absent (e.g. a document this provider wrote,
-which uses the flat fields), the flat-column values are used as normal; nothing needs to be
-configured differently for either case, and both can coexist across different documents in the
-same collection.
+This is purely additive --
+if the nested object is absent (e.g. a document this provider wrote, which uses the flat fields),
+the flat-column values are used as normal; 
+nothing needs to be configured differently for either case, and both can coexist across different documents in the same collection.
 
 === OwnsMany
 
@@ -353,9 +347,8 @@ same collection.
 modelBuilder.Entity<Customer>().OwnsMany(c => c.ContactMethods);
 ----
 
-Unlike `OwnsOne`, `OwnsMany` always stores its items as a genuinely nested JSON array on the
-owner's document (there's no relational equivalent to table-split an array into). Owned
-collections can nest to arbitrary depth -- an `OwnsMany` inside an `OwnsOne` inside another
+Unlike `OwnsOne`, `OwnsMany` always stores its items as a genuinely nested JSON array on the owner's document (there's no relational equivalent to table-split an array into).
+Owned collections can nest to arbitrary depth -- an `OwnsMany` inside an `OwnsOne` inside another
 `OwnsMany`, and so on:
 
 [source,csharp]
@@ -375,8 +368,7 @@ The collection property can be typed as `List<T>` or `HashSet<T>` -- both are fu
 === Field-backed access
 
 If an owned type's properties are get-only (backed by a private field, with no public setter),
-configure `PropertyAccessMode.Field` so EF Core reads/writes them via the backing field instead of
-a setter:
+configure `PropertyAccessMode.Field` so EF Core reads/writes them via the backing field instead of a setter:
 
 [source,csharp]
 ----
@@ -389,8 +381,7 @@ modelBuilder.Entity<Customer>().OwnsOne(c => c.Address, a =>
 
 === Value converters on owned properties
 
-`HasConversion` works on owned-type scalar properties the same way it does on regular entity
-properties:
+`HasConversion` works on owned-type scalar properties the same way it does on regular entity properties:
 
 [source,csharp]
 ----
@@ -400,10 +391,10 @@ modelBuilder.Entity<Customer>().OwnsMany(c => c.Contacts, cm =>
 });
 ----
 
-If your converter needs to run even when the model value is `null` (for example, mapping `null`
-to a sentinel string rather than a JSON null), set `ValueConverter.ConvertsNulls` to `true` on the
-converter -- the provider calls the converter for `null` values on owned properties exactly like
-it does for non-owned ones:
+If your converter needs to run even when the model value is `null` 
+(for example, mapping `null` to a sentinel string rather than a JSON null), 
+set `ValueConverter.ConvertsNulls` to `true` on the converter -- 
+the provider calls the converter for `null` values on owned properties exactly like it does for non-owned ones:
 
 [source,csharp]
 ----

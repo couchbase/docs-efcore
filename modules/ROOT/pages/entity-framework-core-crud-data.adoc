@@ -40,9 +40,10 @@ The code above performs the following steps:
 . Finally, `DbContext.SaveChangesAsync()` is called and the entity's modified properties are persisted to the database.
 
 [IMPORTANT]
-This provider is asynchronous-only -- synchronous APIs like `SaveChanges()`/`.Single()` throw
-`NotSupportedException` in Release builds. Use the `Async` variants throughout, as in the examples
-on this page. See xref:entity-framework-core-limitations.adoc#only-async-queries-supported[Limitations].
+This provider is asynchronous-only --
+synchronous APIs like `SaveChanges()`/`.Single()` throw `NotSupportedException` in Release builds. 
+Use the `Async` variants throughout, as in the examples on this page. 
+See xref:entity-framework-core-limitations.adoc#only-async-queries-supported[Limitations].
 
 
 == Approach 2: Bulk Update with ExecuteUpdateAsync and ExecuteDeleteAsync
@@ -119,7 +120,8 @@ using (var context = new BloggingContext())
 }
 ----
 
-If the entity exists in the database, it will be removed from the database, otherwise it will be removed from the current context when SaveChangesAsync is called.
+If the entity exists in the database, it will be removed from the database,
+otherwise it will be removed from the current context when `SaveChangesAsync` is called.
 
 
 == Combining Operations in a single SaveChangesAsync
@@ -155,18 +157,20 @@ using (var context = new BloggingContext())
 ----
 
 [NOTE]
-Single-document adds, updates, and removes made through change tracking (`Add`/`Update`/`Remove` + `SaveChangesAsync`) go through the https://docs.couchbase.com/dotnet-sdk/current/howtos/kv-operations.html[Couchbase Key/Value store] rather than {sqlpp}, since they operate on a single document by key. Bulk `ExecuteUpdateAsync`/`ExecuteDeleteAsync` (above), raw `FromSqlRaw`/`FromSql` queries, and regular LINQ queries all go through {sqlpp}.
+Single-document adds, updates, and removes made through change tracking (`Add`/`Update`/`Remove` + `SaveChangesAsync`) go through the https://docs.couchbase.com/dotnet-sdk/current/howtos/kv-operations.html[Couchbase Key/Value store] 
+rather than {sqlpp}, since they operate on a single document by key.
+Bulk `ExecuteUpdateAsync`/`ExecuteDeleteAsync` (above), raw `FromSqlRaw`/`FromSql` queries, and regular LINQ queries all go through {sqlpp}.
 
 === Write concurrency and partial failure
 
-When a single `SaveChangesAsync()` call has multiple independent document writes (as in the
-combined example above), the provider issues them concurrently rather than one at a time, so
-`SaveChangesAsync` latency doesn't scale linearly with the number of changed entities. This means
-`SaveChangesAsync` is *not atomic*: if one write in the batch fails, some number of the other
-writes may have already completed (a bounded, nondeterministic subset -- not necessarily a
-predictable prefix), rather than none of them. If you need all-or-nothing semantics for a group of
-writes, use a xref:entity-framework-core-transactions.adoc[Couchbase transaction] instead of
-relying on ordering within a single `SaveChangesAsync` call.
+When a single `SaveChangesAsync()` call has multiple independent document writes (as in the combined example above), 
+the provider issues them concurrently rather than one at a time,
+so `SaveChangesAsync` latency doesn't scale linearly with the number of changed entities.
+This means `SaveChangesAsync` is *not atomic*: 
+if one write in the batch fails, some number of the other writes may have already completed (a bounded, nondeterministic subset -- 
+not necessarily a predictable prefix), rather than none of them.
+If you need all-or-nothing semantics for a group of writes, use a xref:entity-framework-core-transactions.adoc[Couchbase transaction] 
+instead of relying on ordering within a single `SaveChangesAsync` call.
 
 `SaveChangesAsync` also accepts a `CancellationToken`, which is honored both when scheduling
 further writes and by the in-flight KV calls themselves:
@@ -209,7 +213,8 @@ using (var context = new BloggingContext())
 ----
 
 [TIP]
-If you attempt to delete the Blog after creating it, you will get a foreign key constraint when you call `SaveChangesAsync` again, unless you provide `DeleteBehavior.Cascade` to the entity during modeling.
+If you attempt to delete the Blog after creating it, you will get a foreign key constraint when you call `SaveChangesAsync` again, 
+unless you provide `DeleteBehavior.Cascade` to the entity during modeling.
 
 
 == Adding a related entity
@@ -230,9 +235,9 @@ using (var context = new BloggingContext())
 ----
 
 Eager loading via `Include`/`ThenInclude` is supported, including chained `ThenInclude`, `AutoInclude`,
-filtered includes, and includes on many-to-many skip navigations -- see
-xref:entity-framework-core-modeling.adoc#eager-loading[Modeling] for the full set of examples. For
-instance, to load a blog with both its posts and its owner in one query:
+filtered includes, and includes on many-to-many skip navigations --
+see xref:entity-framework-core-modeling.adoc#eager-loading[Modeling] for the full set of examples. 
+For instance, to load a blog with both its posts and its owner in one query:
 
 [source,csharp]
 ----
