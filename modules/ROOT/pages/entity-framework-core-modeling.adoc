@@ -340,6 +340,7 @@ if the nested object is absent (e.g. a document this provider wrote, which uses 
 the flat-column values are used as normal; 
 nothing needs to be configured differently for either case, and both can coexist across different documents in the same collection.
 
+[#ownsmany]
 === OwnsMany
 
 [source,csharp]
@@ -364,6 +365,81 @@ modelBuilder.Entity<Customer>().OwnsMany(c => c.ContactMethods, cm =>
 ----
 
 The collection property can be typed as `List<T>` or `HashSet<T>` -- both are fully supported.
+
+`.Any(predicate)` and predicate-less `.Any()` are supported for a depth-1 `OwnsMany` navigation
+(a collection declared directly on the entity being queried), translating to {sqlpp}'s
+`ANY x IN parentAlias.field SATISFIES ... END` rather than a real `EXISTS` subquery, since the
+collection is a JSON array already embedded in the current document rather than a separate
+keyspace to correlate against:
+
+[source,csharp]
+----
+var withPhone = await context.Customers
+    .Where(c => c.ContactMethods.Any(m => m.Type == "phone"))
+    .ToListAsync();
+----
+
+`.All(predicate)` and `.Count(predicate)` (with or without a predicate) are also supported for a
+depth-1 `OwnsMany` navigation:
+
+[source,csharp]
+----
+var allEmail = await context.Customers
+    .Where(c => c.ContactMethods.All(m => m.Type == "email"))
+    .ToListAsync();
+
+var twoOrMorePhones = await context.Customers
+    .Where(c => c.ContactMethods.Count(m => m.Type == "phone") >= 2)
+    .ToListAsync();
+----
+
+`.All(predicate)` translates via the same `ANY ... SATISFIES ... END` mechanism as `.Any()` (EF
+Core itself expresses `.All(predicate)` as a negated `.Any(x => !predicate(x))`, so it needs no
+separate translation). `.Count(predicate)`/`.Count()` translate to a correlated
+`(SELECT RAW COUNT(*) FROM parentAlias.field AS alias [WHERE predicate])[0]` subquery.
+
+*`.Contains()` directly on an `OwnsMany` navigation is not supported* -- not a limitation of this
+provider's SQL generation, but a crash inside EF Core's own core query-translation code
+(`RelationalSqlTranslatingExpressionVisitor.ParameterValueExtractor`) that reproduces for any
+relational provider once the owned collection's key is composite (owner key + declared key, EF
+Core's default for an owned type): it can't read the shadow foreign-key property's value off an
+arbitrary (tracked or untracked) `ContactMethod` instance to build the comparison, since a shadow
+property has no CLR getter to read from. `.Any(predicate)` (comparing individual properties, not
+the whole entity) is the supported alternative.
+
+`.Any(predicate)`/`.All(predicate)`/`.Count(predicate)` also work when the target collection is
+reached through *another* owned navigation (nested, depth > 1), e.g.:
+
+[source,csharp]
+----
+var withPriorityTag = await context.Customers
+    .Where(c => c.ContactMethods.Any(m => m.Tags.Any(t => t.Key == "priority")))
+    .ToListAsync();
+----
+
+This needs no special-cased translation: each level's `ANY ... SATISFIES ... END` (or correlated
+`COUNT` subquery) is rendered relative to the enclosing level's own array alias, so the same
+mechanism just recurses naturally to any depth. An indexer access can also appear as the
+innermost predicate, e.g. `c.ContactMethods.Any(m => m.Tags[0].Key == "priority")`.
+
+Indexer/`.ElementAt()` access is also supported for a depth-1 `OwnsMany` navigation, translating
+to {sqlpp}'s native `parentAlias.field[index].propertyName` array subscript:
+
+[source,csharp]
+----
+var customersWithEmailFirst = await context.Customers
+    .Where(c => c.ContactMethods[0].Type == "email")
+    .ToListAsync();
+----
+
+As with a scalar <<primitive-collections,primitive collection>>'s indexer, this always behaves
+like `.ElementAtOrDefault()` -- an out-of-range index is excluded/returns default rather than
+throwing. `.Where(...).ElementAt(...)` composed before the index is not supported. *A direct
+chained indexer through two levels of `OwnsMany`* (e.g. `customer.ContactMethods[0].Tags[0].Key`,
+as opposed to an indexer appearing inside a `.Any(predicate)` as shown above) *is not
+supported* -- this fails inside EF Core's own core query-translation code before any
+Couchbase-specific code runs, the same class of limitation as `.Contains()` above. Use
+`.Any(predicate)` with an inner indexer instead.
 
 === Field-backed access
 
@@ -410,3 +486,47 @@ modelBuilder.Entity<Customer>().OwnsMany(c => c.Contacts, cm =>
     cm.Property(c => c.Note).HasConversion(new NullToSentinelConverter());
 });
 ----
+
+
+[#primitive-collections]
+== Primitive collections
+
+A `List<T>`/`T[]` property of a scalar element type (`string`, numeric types, `bool`, `Guid`,
+`DateTime`) mapped directly on an entity -- not via `OwnsMany` -- is stored as a native JSON array
+field, no configuration required:
+
+[source,csharp]
+----
+public class Hotel
+{
+    public int Id { get; set; }
+    public List<string> PublicLikes { get; set; } = [];
+}
+----
+
+The following LINQ operators are supported over a primitive collection property:
+
+[source,csharp]
+----
+// Indexer / .ElementAt()
+context.Hotels.Where(h => h.PublicLikes[0] == "Alice");
+
+// .Contains()
+context.Hotels.Where(h => h.PublicLikes.Contains("Bob"));
+
+// .Count
+context.Hotels.Where(h => h.PublicLikes.Count == 3);
+
+// .Any(predicate)
+context.Hotels.Where(h => h.PublicLikes.Any(n => n.StartsWith("Car")));
+----
+
+Indexer/`.ElementAt()` access always behaves like `.ElementAtOrDefault()` -- an out-of-range or
+negative index returns the element type's default value rather than throwing, since {sqlpp}'s
+array subscript returns `MISSING` (falsy) for an out-of-range position instead of erroring.
+
+*Limitations*: there is no supported way to observe or rely on array position beyond direct
+indexing -- `.OrderBy(...).ElementAt(...)` and `.Where(...).ElementAt(...)` compositions, and
+reverse-`.Contains()` over a local in-memory collection (`someList.Contains(h.SomeProperty)`), are
+not supported for a primitive collection source. See
+xref:entity-framework-core-limitations.adoc[Limitations].

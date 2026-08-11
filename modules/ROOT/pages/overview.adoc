@@ -14,6 +14,7 @@ This documentation contains the following pages:
 * xref:ROOT:entity-framework-core-modeling.adoc[]
 * xref:ROOT:entity-framework-core-queries.adoc[]
 * xref:ROOT:entity-framework-core-crud-data.adoc[]
+* xref:ROOT:entity-framework-core-concurrency.adoc[]
 * xref:ROOT:entity-framework-core-transactions.adoc[]
 * xref:ROOT:entity-framework-core-sequences.adoc[]
 * xref:ROOT:entity-framework-core-release-notes.adoc[Release Notes]

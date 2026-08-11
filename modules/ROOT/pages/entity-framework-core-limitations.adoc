@@ -15,10 +15,36 @@ Use `context.Database.EnsureCreatedAsync()` instead.
 * https://learn.microsoft.com/en-us/ef/core/modeling/relational/tables#table-per-type-configuration[Table-per-type (TPT)] and https://learn.microsoft.com/en-us/ef/core/modeling/inheritance#table-per-concrete-type-configuration[table-per-concrete-type (TPC)] inheritance --
 table-per-hierarchy (TPH) is supported.
 
+* *`EnsureCreatedAsync` does not create any index by default.* It always creates the bucket's
+scopes and collections (and any configured sequences -- see
+xref:entity-framework-core-sequences.adoc[Sequences and generated values]). LINQ, `FromSqlRaw`/`FromSql`,
+and `ExecuteUpdate`/`ExecuteDelete` all run as {sqlpp} queries under the hood, and Couchbase's
+query service refuses to query a collection that has no primary or secondary index at all -- set
+`AutoCreateIndexes = true` on the options builder to have `EnsureCreatedAsync` also create a
+primary index on every collection it creates or already owns, plus a secondary index for every
+`HasIndex()` declared on the model, waiting for each one to come online before returning (see
+xref:entity-framework-core-configuration.adoc#secondary-indexes-hasindex[Secondary indexes (HasIndex())]).
+This defaults to `false`, so by default you must still create at least a primary index yourself:
++
+[source,sqlpp]
+----
+CREATE PRIMARY INDEX IF NOT EXISTS ON `bucket`.`scope`.`collection`
+----
++
+A primary index is enough to get started but scans the whole collection; for real workloads, use
+`HasIndex()` (or create secondary indexes manually) on the fields you filter/sort/join by instead.
+`HasIndex()` support has some gaps: *{sqlpp} secondary indexes have no unique-constraint concept*,
+so `.IsUnique()` is a no-op (logged as a warning) rather than enforced, and *an index referencing a
+property declared on an owned type (`OwnsOne`/`OwnsMany`) is not auto-created* -- it's skipped with
+a warning since it isn't resolvable to a single JSON field path on the root document in this pass;
+create it manually instead. See
+xref:entity-framework-core-configuration.adoc#secondary-indexes-hasindex[Secondary indexes (HasIndex())]
+for the full picture, including the required explicit index name.
+
 * Any features not explicitly mentioned in this documentation
 
 [NOTE]
-Eager loading/fetching (`Include`/`ThenInclude`, filtered includes, `AutoInclude`), 
+Eager loading/fetching (`Include`/`ThenInclude`, filtered includes, `AutoInclude`),
 value generation (server-side sequences and generated GUIDs), and owned-type table splitting are all supported as of `{provider_current_version}` --
 see xref:entity-framework-core-modeling.adoc[Modeling] and xref:entity-framework-core-sequences.adoc[Sequences and generated values].
 
@@ -26,14 +52,15 @@ see xref:entity-framework-core-modeling.adoc[Modeling] and xref:entity-framework
 == Unsupported Couchbase Features
 
 * All queries use xref:dotnet-sdk:concept-docs:n1ql-query.adoc#index-consistency[NOT_BOUNDED] by default.
-This means that the query will not wait for the index to be updated before returning results. 
-Set `RequestPlus` on the options builder for read-after-write consistency.
+This means that the query will not wait for the index to be updated before returning results.
+Set `RequestPlus` on the options builder for read-after-write consistency across every query on
+that context, or use `ConsistentWith`/`GetMutationState()` for a cheaper, narrower guarantee
+scoped to a specific prior write -- see
+xref:entity-framework-core-concurrency.adoc#read-your-own-writes-consistentwith[Read-your-own-writes].
 
 * Only xref:dotnet-sdk:howtos:n1ql-queries-with-sdk.adoc#query-options[default values] are used for all queries generated and executed against Couchbase.
 
 * Only xref:dotnet-sdk:ref:client-settings.adoc[default values] are used for K/V CRUD operations.
-
-* xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc[Compare and swap (CAS)] is not currently supported.
 
 * xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc#pessimistic-locking[Pessimistic locking] is not currently supported.
 
@@ -47,13 +74,24 @@ Set `RequestPlus` on the options builder for read-after-write consistency.
 
 
 [NOTE]
-Multi-document transactions -- 
+====
+xref:dotnet-sdk:howtos:concurrent-document-mutations.adoc[Compare and swap (CAS)]-based optimistic
+concurrency is supported as of `{provider_current_version}`, via `[CouchbaseMeta(CouchbaseMetaField.Cas)]`
+combined with EF Core's own `.IsConcurrencyToken()`. `META().id`/`.expiration`/`.flags`/`.type` are
+also readable via the same `[CouchbaseMeta]` mechanism, but read-only. `META().xattrs` (extended
+attributes) is still not supported. See xref:entity-framework-core-concurrency.adoc[Optimistic
+concurrency and document metadata].
+====
+
+[NOTE]
+Multi-document transactions --
 including transactions spanning more than one bucket on the same
 cluster, with a configurable xref:dotnet-sdk:concept-docs:durability-replication-failure-considerations.adoc#durability[durability level] -- 
 are supported as of `{provider_current_version}`.
 See xref:entity-framework-core-transactions.adoc[Transactions].
 
 
+[#only-async-queries-supported]
 == Only Async Queries Supported
 
 Limitations on the Couchbase SDK mean that only async queries are supported.
@@ -127,9 +165,55 @@ including field-backed access and value converters on owned properties.
 
 [NOTE]
 Because Couchbase has no concept of foreign keys or cascading deletes, related *entities* (not
-owned types) -- 
-for example a one-to-many relationship modeled as a separate `DbSet<TChild>` rather than an owned type -- 
+owned types) --
+for example a one-to-many relationship modeled as a separate `DbSet<TChild>` rather than an owned type --
 are not automatically deleted when the parent is deleted unless `DeleteBehavior.Cascade` is configured, same as any EF Core provider.
+
+=== Querying nested owned data
+
+`.Any(predicate)`/`.All(predicate)`/`.Count(predicate)` over an `OwnsMany` navigation are
+supported at any nesting depth -- both a collection declared directly on the entity being queried
+and the *nested* case, reached through another owned navigation (e.g.
+`c.ContactMethods.Any(m => m.Tags.Any(t => t.Key == "priority"))`, or deeper). An indexer access
+can also appear as the innermost predicate (e.g. `c.ContactMethods.Any(m => m.Tags[0].Key ==
+"priority")`). See xref:entity-framework-core-modeling.adoc#ownsmany[Modeling -- OwnsMany].
+
+*`.Contains()` directly on an `OwnsMany` navigation is not supported* -- this is a crash inside EF
+Core's own core query-translation code, not a gap in this provider's SQL generation, and would
+reproduce for any relational provider once the owned collection's key is composite (the default
+for an owned type). Use `.Any(predicate)` comparing individual properties instead. See
+xref:entity-framework-core-modeling.adoc#ownsmany[Modeling -- OwnsMany].
+
+*Indexer/`.ElementAt()` over a scalar primitive collection (`List<T>`/`T[]`, not `OwnsMany`) has no
+ordering guarantee beyond direct array position*, and always behaves like
+`.ElementAtOrDefault()` (an out-of-range or negative index returns the default value rather than
+throwing) -- this Couchbase Server version has no {sqlpp} syntax for a deterministic positional
+binding over an unnested array. `.OrderBy(...).ElementAt(...)`/`.Where(...).ElementAt(...)`
+compositions and reverse-`.Contains()` over a local in-memory collection are not supported for a
+primitive collection source. See
+xref:entity-framework-core-modeling.adoc#primitive-collections[Modeling -- Primitive collections].
+
+Indexer/`.ElementAt()` over a depth-1 `OwnsMany` navigation (e.g. `customer.ContactMethods[0].Type`)
+has the same `.ElementAtOrDefault()`-like out-of-range behavior and the same
+`.Where(...).ElementAt(...)`-composition limitation as a primitive collection's indexer.
+
+*A direct chained indexer through two levels of `OwnsMany` is not supported* (e.g.
+`customer.ContactMethods[0].Tags[0].Key`) -- this is a crash inside EF Core's own core
+query-translation code (`InvalidOperationException`, "could not be translated"), not a gap in this
+provider's SQL generation, the same class of limitation as `.Contains()` over an `OwnsMany`
+navigation above. Use `.Any(predicate)` with an inner indexer instead (e.g.
+`customer.ContactMethods.Any(m => m.Tags[0].Key == "priority")`), which is fully supported. See
+xref:entity-framework-core-modeling.adoc#ownsmany[Modeling -- OwnsMany].
+
+*A `[UnixMillisDateTime]`-mapped property cannot be compared directly against
+`DateTime.UtcNow`/`.Now`/`.Today`* -- these static members have no associated property, so they
+always translate to the string-based date-function family regardless of what they're compared
+against, and the comparison throws `NotSupportedException` at query-translation time rather than
+silently comparing a `NUMBER` against a string. Capture the value into a local variable before the
+query instead. `HasIndex()` on a `[UnixMillisDateTime]` property auto-creates a secondary index
+normally (it's just a `NUMBER` field like any other), but whether the index's field order matches
+your queries' access patterns is, as with any index, your own responsibility. See
+xref:entity-framework-core-configuration.adoc#unix-millis-datetime-storage[Unix-millis DateTime storage].
 
 
 == Avoid Dynamic or Object Type Properties
