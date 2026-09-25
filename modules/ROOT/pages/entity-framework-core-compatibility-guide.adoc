@@ -10,7 +10,7 @@
 .Compatibility
 [cols="1,1"]
 |===
-| Couchbase EF Core Provider | 2.0.0-beta.2
+| Couchbase EF Core Provider | 2.0.0-beta.3
 | EF Core | 10.0.8
 | .NET Version | .NET 10 ^①^
 | Couchbase Server | >= 7.6.0

@@ -30,6 +30,87 @@ any changes to expected behavior are noted in the release notes that follow.
 
 
 
+=== Version 2.0.0-beta.3 (10 August 2026)
+
+Version https://jira.issues.couchbase.com/issues/?jql=project%20%3D%20%22CBEF%22%20AND%20fixVersion%20%3D%20%222.0.0-beta.3%22[2.0.0-beta.3] adds:
+
+* *Per-query read-your-own-writes* (`ConsistentWith`/`MutationState`) --
+`SaveChangesAsync` automatically accumulates a `MutationState` on the `DbContext` from its own
+writes; `.ConsistentWith(mutationState)` scopes a read-after-write guarantee to one query, across
+LINQ, `FromSqlRaw`/`FromSql`, and raw ADO.NET -- cheaper and narrower than a context-wide
+`RequestPlus`.
+See xref:entity-framework-core-concurrency.adoc#read-your-own-writes-consistentwith[Read-your-own-writes].
+
+* *`META()` support: document metadata and CAS-based optimistic concurrency* --
+`[CouchbaseMeta(CouchbaseMetaField)]`/`HasCouchbaseMeta(...)` sources a property from
+`META(alias).id`/`.cas`/`.expiration`/`.flags`/`.type`. Combined with EF Core's own
+`.IsConcurrencyToken()`, a `ulong` CAS property becomes a real optimistic-concurrency token --
+`SaveChangesAsync` throws `DbUpdateConcurrencyException` on a CAS mismatch instead of silently
+overwriting a concurrent change.
+See xref:entity-framework-core-concurrency.adoc[Optimistic concurrency and document metadata].
+
+* *`UseIndex`/`UseHash` query hints* --
+per-keyspace {sqlpp} optimizer hints exposed as `IQueryable<T>` extension methods: force a
+specific secondary index (`UseIndex`), or a hash-join build/probe strategy for a join (`UseHash`).
+See xref:entity-framework-core-queries.adoc#query-hints-use-index--use-hash[Query hints].
+
+* *`HasIndex()` secondary-index auto-creation* --
+`EnsureCreatedAsync` (with the new `AutoCreateIndexes` option) creates a {sqlpp} secondary index
+for every `HasIndex()` declared on the model, alongside the existing primary-index creation, and
+waits for each to come online before returning.
+See xref:entity-framework-core-configuration.adoc#secondary-indexes-hasindex[Secondary indexes (HasIndex())].
+
+* *`OwnsMany` querying, rounded out* --
+`.Any(predicate)`, `.All(predicate)`, and `.Count(predicate)` now work at any nesting depth
+(including reached through another owned navigation), and indexer/`.ElementAt()` access
+(`customer.ContactMethods[0].Type`) is supported for a depth-1 collection. `.Contains()` directly
+on an `OwnsMany` navigation, and a *direct* chained indexer through two owned-collection levels,
+remain unsupported -- both are crashes inside EF Core's own core query-translation code, not gaps
+in this provider.
+See xref:entity-framework-core-modeling.adoc#ownsmany[Modeling -- OwnsMany].
+
+* *Scalar primitive collections* (`List<T>`/`T[]`, not `OwnsMany`) --
+now stored as a native JSON array (previously silently double-encoded as a JSON string) and
+support indexer/`.ElementAt()`, `.Contains()`, `.Count`, and `.Any(predicate)`.
+See xref:entity-framework-core-modeling.adoc#primitive-collections[Modeling -- Primitive collections].
+
+* *`[UnixMillisDateTime]`/`HasUnixMillisDateTime`* --
+stores a `DateTime` property as Unix epoch milliseconds (a JSON `NUMBER`) instead of this
+provider's default ISO-8601 string, for data that already uses that convention.
+See xref:entity-framework-core-configuration.adoc#unix-millis-datetime-storage[Unix-millis DateTime storage].
+
+* *`DateTimeFormat` option, with a per-property override* --
+configures the .NET custom `DateTime` format string the provider assumes when generating or
+comparing `DateTime` string values in {sqlpp}, since {sqlpp} has no native date type and data can
+legitimately use a different convention.
+See xref:entity-framework-core-configuration.adoc#datetime-string-format[DateTime string format].
+
+* *Broader {sqlpp} function translation* --
+`Math.Sin`/`Cos`/`Tan`/`Asin`/`Acos`/`Atan`/`Atan2`; `Math.Min`/`Max` and
+`EF.Functions.Least`/`Greatest` (via a new inline array-literal expression); `EF.Functions.IsMissing`/
+`IsNotMissing`/`IsValued`/`IsNotValued` (N1QL's postfix `IS [NOT] MISSING`/`IS [NOT] VALUED`,
+distinguishing a genuinely missing field from an explicit JSON `null`); and `string.StartsWith`/
+`EndsWith`/`IsNullOrEmpty`/`PadLeft`/`PadRight`/`Length`, `Math.Abs`/`Ceiling`/`Floor`/`Round`/
+`Truncate`/`Pow`/`Sqrt`/`Sign`/`Log`/`Log10`/`Exp`, `DateTime` member access and arithmetic, and
+`Guid.NewGuid()` from earlier in this cycle.
+See xref:entity-framework-core-queries.adoc#supported-functions[Supported functions].
+
+Also fixed: sequences always targeted the context's configured bucket rather than the actual
+bucket of the entity using them (now resolved per-entity, matching collections/indexes); C#'s `??`
+generated N1QL's nonexistent `COALESCE` (now `IFMISSINGORNULL`); `string.IndexOf` translated to
+`CONTAINS` (a boolean) instead of `POSITION` (the integer position it must return).
+
+Known limitations at this release: a `[UnixMillisDateTime]`-mapped property cannot be compared
+directly against `DateTime.UtcNow`/`.Now`/`.Today` (capture the value into a local variable
+first); `.Contains()` directly on an `OwnsMany` navigation and a direct chained indexer through
+two owned-collection levels remain unsupported. See
+xref:entity-framework-core-limitations.adoc[Limitations].
+
+
+xref:ROOT:entity-framework-core-sdk-api.adoc[API Reference] |
+https://www.nuget.org/packages/Couchbase.EntityFrameworkCore/2.0.0-beta.3[NUGET]
+
+
 === Version 2.0.0-beta.2 (15 July 2026)
 
 Version https://jira.issues.couchbase.com/issues/?jql=project%20%3D%20%22CBEF%22%20AND%20fixVersion%20%3D%20%222.0.0-beta.2%22[2.0.0-beta.2] adds:
