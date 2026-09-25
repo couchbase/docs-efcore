@@ -11,7 +11,7 @@ Couchbase's KV API tracks a CAS (compare-and-swap) value on every document -- an
 changes on every mutation, the Couchbase equivalent of a SQL rowversion. {sqlpp} exposes this and
 other per-document metadata through the
 https://docs.couchbase.com/server/current/n1ql/n1ql-language-reference/indexing-meta-info.html[`META()` function].
-The provider maps `META()` fields onto ordinary shadow properties via `[CouchbaseMeta]`/
+The provider maps `META()` fields onto ordinary entity properties via `[CouchbaseMeta]`/
 `HasCouchbaseMeta`, most importantly CAS as an EF Core optimistic-concurrency token.
 
 Without a CAS-backed concurrency token, `SaveChangesAsync` performs an unconditional write --
